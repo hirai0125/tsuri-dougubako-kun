@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0b3a5b">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="釣り道具箱くん">
+<title>釣り道具箱くん</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@500;700;900&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet">
+<style>
+/* VOICE: 釣り人の道具帳。落ち着いた実用、手早く見て直せる。
+   IDEA: 釣具店の竿立て＋自分の道具台帳。一本ずつ長さ通りに並ぶ竿。
+   PICTURE: 各カードに実寸比で描いた竿（穂先はブイの橙）。一覧そのものが絵。
+   COLOUR and TYPE: 深い海の紺 / 白 / ブイの橙。Zen Kaku Gothic New + 数字は Barlow Condensed。
+   LAYOUT: 紺の帯に合計、タブ、検索、カード一覧。スマホ1列、広い画面は2列。 */
+:root{color-scheme:light dark;
+--bg:light-dark(#f4f7f9,#061724);--card:light-dark(#fff,#0c2536);--ink:light-dark(#0d1f2b,#e6eef3);
+--sub:light-dark(#5b6d79,#93a8b6);--line:light-dark(#dbe3e8,#1c3a4e);--sea:#0b3a5b;--sea2:#14557f;
+--buoy:#ff6a1a;--buoyInk:light-dark(#c94a06,#ff8a47);--rod:light-dark(#22323d,#c9d6de)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "Zen Kaku Gothic New",system-ui,sans-serif;overflow-x:clip}
+.num{font-family:"Barlow Condensed","Zen Kaku Gothic New",sans-serif;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+header{background:var(--sea);color:#fff;padding:22px max(5vw,16px) 0;position:relative;overflow:hidden}
+.headrow{display:flex;gap:12px 20px;align-items:flex-end;justify-content:space-between;flex-wrap:wrap}
+.headtxt{flex:1 1 280px}
+svg.hero{flex:0 1 300px;width:min(300px,100%);height:auto;max-height:170px;margin-bottom:6px;position:relative;z-index:1}
+@media(max-width:600px){svg.hero{order:-1;width:min(240px,70%);margin:0 auto 4px;max-height:135px}}
+header svg.wave{position:absolute;left:0;right:0;bottom:0;width:100%;height:28px;pointer-events:none}
+h1{margin:0;font-size:clamp(26px,6vw,38px);line-height:1.05;font-weight:900;letter-spacing:.02em}
+.lead{margin:4px 0 14px;color:#b9d3e4;font-size:14px}
+.stats{display:flex;gap:10px 28px;flex-wrap:wrap;padding-bottom:16px}
+.stat.s-tips b,.stat.s-tips span{color:#7fd8ff}
+.stat b{display:block;font-size:clamp(28px,7vw,40px);line-height:1}.stat span{font-size:13px;color:#b9d3e4}
+.tabs{display:flex;gap:4px;position:relative;z-index:1}
+.tabs button{flex:1;max-width:180px;border:0;border-radius:12px 12px 0 0;padding:12px 8px;font:700 16px "Zen Kaku Gothic New";background:var(--sea2);color:#cfe2ee;cursor:pointer;min-height:48px}
+.tabs button[aria-selected=true]{background:var(--bg);color:var(--ink)}
+main{max-width:1100px;margin:0 auto;padding:16px max(4vw,12px) 110px}
+.tool{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+input,select,textarea{font:16px "Zen Kaku Gothic New";color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 12px;min-height:44px;width:100%}
+.tool input{flex:1 1 200px;width:auto}.tool select{flex:0 1 170px;width:auto}
+:focus-visible{outline:3px solid var(--buoy);outline-offset:2px}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.chip{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:99px;padding:6px 14px;font:500 14px "Zen Kaku Gothic New";min-height:36px;cursor:pointer}
+.chip[aria-pressed=true]{background:var(--sea);border-color:var(--sea);color:#fff}
+.list{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,460px),1fr));gap:10px}
+.item{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px 12px;cursor:pointer;text-align:left;color:inherit;font:inherit;width:100%;display:block}
+.item:hover{border-color:var(--sea2)}
+.item{position:relative;overflow:hidden}
+.item.own-m{border-left:8px solid #ee5a0f}.item.own-f{border-left:8px solid #13306e}
+.who{display:inline-block;font-size:14px;font-weight:900;color:#fff;border-radius:8px;padding:2px 12px;margin-bottom:4px;letter-spacing:.05em}
+.who.m{background:#ee5a0f;box-shadow:0 0 0 2px light-dark(#ffd2b8,#5a2408)}.who.f{background:#13306e;box-shadow:0 0 0 2px light-dark(#c9d5ee,#5b7bbd)}
+.item.off{background:repeating-linear-gradient(135deg,light-dark(#eef1f3,#0a1d2a) 0 10px,light-dark(#e4e8eb,#0e2433) 10px 20px);border-style:dashed;color:var(--sub)}
+.item.off .nm,.item.off .pr{color:var(--sub)}.item.off .meta{padding-right:84px}.item.off .nm .t{text-decoration:line-through;text-decoration-thickness:2px}
+.stamp{position:absolute;right:12px;bottom:10px;transform:rotate(-8deg);border:3px solid #d23b2a;color:#d23b2a;font-weight:900;font-size:18px;padding:0 10px;border-radius:6px;letter-spacing:.15em;background:light-dark(rgba(255,255,255,.7),rgba(6,23,36,.7))}
+.used{display:inline-block;font-size:13px;font-weight:900;color:#8a5a00;background:#ffd84d;border-radius:6px;padding:1px 8px}
+.tag.bt{background:#ee5a0f}.tag.sp{background:#1f8a9e}
+.specs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin:10px 0 4px}
+.specs span{background:light-dark(#eef4f8,#102c40);border-radius:10px;padding:6px 10px;display:flex;flex-direction:column;line-height:1.15}
+.specs small{font-size:12px;color:var(--sub)}.specs b{font-size:22px}
+.item.off .specs span{background:transparent}
+.item.haiki{opacity:.6;background:light-dark(#e9ebec,#0a1620)}
+.stamp.haiki{border-color:#555;color:#555;background:light-dark(rgba(255,255,255,.75),rgba(6,23,36,.75))}
+:root[data-theme=dark] .stamp.haiki{border-color:#aab;color:#aab}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]) .stamp.haiki{border-color:#aab;color:#aab}}
+.kind{display:inline-block;font-size:15px;font-weight:900;color:#fff;border-radius:8px;padding:3px 12px;margin-bottom:4px;letter-spacing:.05em}
+.kind.bt{background:#ee5a0f;box-shadow:0 0 0 2px light-dark(#ffd2b8,#5a2408)}.kind.sp{background:#1f8a9e}
+.item .kind,.item .who{vertical-align:middle}
+.sect.kh{color:var(--ink);font-size:19px;font-weight:900;margin-top:10px}
+.sect.kh::before{content:"";width:14px;height:14px;border-radius:4px;background:var(--sub)}
+.sect.kh.bt::before{background:#ee5a0f}.sect.kh.bt{color:var(--buoyInk)}.sect.kh.sp::before{background:#1f8a9e}
+.list.tbl{display:block}
+.tw{background:var(--card);border:1px solid var(--line);border-radius:12px;margin-bottom:8px}
+.tw table{border-collapse:collapse;width:100%;font-size:14px}
+.tw th{position:sticky;top:0;background:light-dark(#e9f0f5,#0f2d42);text-align:left;font-weight:700;padding:8px 10px;white-space:nowrap;font-size:13px;color:var(--sub)}
+.tw td{padding:8px 10px;border-top:1px solid var(--line);white-space:nowrap}
+.tw td.nm{white-space:normal;min-width:10em}
+.tw .r{text-align:right;font-family:"Barlow Condensed","Zen Kaku Gothic New",sans-serif;font-weight:700;font-size:16px;font-variant-numeric:tabular-nums}
+.tw tr[data-id]{cursor:pointer}.tw tr[data-id]:hover td{background:light-dark(#f3f8fb,#123248)}
+.tw tr.own-m td:first-child{box-shadow:inset 6px 0 #ee5a0f}.tw tr.own-f td:first-child{box-shadow:inset 6px 0 #13306e}
+.tw .who{margin:0;font-size:13px;padding:1px 8px}
+.tw tr.brk td{border-top:3px solid light-dark(#7a8f9c,#5d7a8e)}
+.tw tr.off td{color:var(--sub);background:light-dark(#f1f3f4,#0a1d2a)}
+.vbar{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-start;justify-content:space-between}
+.vbar .seg{flex:1 1 220px}
+.btn.save{background:#0b3a5b;border-color:#0b3a5b;color:#fff}
+.csvbox{font:13px/1.4 monospace;min-height:120px;margin-bottom:10px}
+.tabs{flex-wrap:wrap}.tabs button{flex:1 1 auto;min-width:72px}
+.tabs button.addcat{flex:0 0 auto;background:transparent;border:2px dashed #5d8fb3;color:#cfe2ee;border-bottom:0}
+.frow{display:grid;grid-template-columns:minmax(0,1fr) 7em 44px;gap:6px;margin-bottom:6px}
+.frow .x{min-height:44px;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;font-size:18px;cursor:pointer}
+.note.warn{color:#d23b2a}
+.vbar .btns{justify-content:flex-end}
+.subtotal{margin-top:14px;background:var(--sea);color:#fff;border-radius:14px;padding:12px 16px}
+.subtotal:empty{display:none}
+.st-t{font-weight:900;font-size:16px;margin-bottom:4px}
+.st-row{display:grid;grid-template-columns:minmax(0,1fr) 5em 8.5em;gap:8px;align-items:baseline;padding:4px 0;border-top:1px solid rgba(255,255,255,.18)}
+.st-row b{text-align:right;font-size:20px}.st-row:nth-child(2) b{font-size:26px;color:#ffb27f}
+.st-row.s{color:#b9d3e4}.st-row.s b{font-size:17px}
+.st-row.f{color:#7fd8ff}.st-row.f b{font-size:17px}
+#syncBtn.on{border-color:#2e9d5b;color:#2e9d5b}#syncBtn.on::before{content:"● ";color:#2e9d5b}
+.sect{grid-column:1/-1;margin:18px 0 2px;font-size:16px;font-weight:700;color:var(--sub);display:flex;align-items:center;gap:8px}
+.sect::after{content:"";flex:1;border-top:2px dashed var(--line)}
+.top{display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+.mk{font-size:13px;color:var(--sub)}.nm{font-weight:700;font-size:17px;line-height:1.3}
+.pr{font-size:22px}
+.meta{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:14px;color:var(--sub);margin-top:4px}
+.meta b{color:var(--ink);font-weight:700}
+.tag{display:inline-block;font-size:12px;border-radius:6px;padding:1px 7px;background:var(--buoy);color:#fff;font-weight:700;vertical-align:2px}
+.tag.g{background:var(--sub)}.tag.m{background:var(--sea2)}.tag.f{background:#b0428a}
+.seg{display:flex;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:4px;gap:4px;margin-bottom:10px;max-width:420px}
+.seg[hidden]{display:none}
+.seg button{flex:1;border:0;border-radius:9px;background:none;color:var(--ink);font:700 15px "Zen Kaku Gothic New";min-height:42px;cursor:pointer}
+.seg button[aria-pressed=true]{background:var(--sea);color:#fff}
+.seg button[data-k="本人"][aria-pressed=true]{background:#ee5a0f}.seg button[data-k="家族"][aria-pressed=true]{background:#13306e}
+svg.rod{display:block;width:100%;height:22px;margin:8px 0 2px}
+.empty{padding:40px 16px;text-align:center;color:var(--sub);border:2px dashed var(--line);border-radius:14px}
+.fab{position:fixed;right:max(4vw,16px);bottom:22px;background:var(--buoy);color:#fff;border:0;border-radius:99px;padding:0 24px;height:56px;font:700 17px "Zen Kaku Gothic New";box-shadow:0 6px 18px rgba(0,0,0,.25);cursor:pointer;z-index:5}
+.btns{display:flex;gap:8px;flex-wrap:wrap}
+.btn{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;padding:0 16px;min-height:44px;font:700 15px "Zen Kaku Gothic New";cursor:pointer}
+.btn.p{background:var(--sea);border-color:var(--sea);color:#fff}.btn.d{color:#d23b2a;border-color:#e8b3ab}
+dialog{border:0;border-radius:16px;padding:0;width:min(560px,94vw);max-height:92vh;background:var(--card);color:var(--ink)}
+dialog::backdrop{background:rgba(3,20,32,.55)}
+dialog form{padding:18px}dialog h2{margin:0 0 12px;font-size:20px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.grid label{font-size:13px;color:var(--sub);display:block}.grid .w{grid-column:1/-1}
+.foot{display:flex;justify-content:space-between;gap:8px;margin-top:16px;flex-wrap:wrap}
+.toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:#0d1f2b;color:#fff;border-radius:12px;padding:10px 14px;display:none;gap:12px;align-items:center;z-index:9;font-size:15px;max-width:92vw}
+.toast button{background:none;border:0;color:#ffb27f;font:700 15px "Zen Kaku Gothic New";cursor:pointer;min-height:36px}
+.note{font-size:13px;color:var(--sub);margin:8px 0 0}
+@media(max-width:600px){.grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
+@media(prefers-reduced-motion:no-preference){.item{transition:border-color .15s,transform .15s}.item:active{transform:scale(.99)}}
+</style>
+</head>
+<body>
+<header>
+  <div class="headrow">
+  <div class="headtxt">
+  <h1>釣り道具箱くん</h1>
+  <p class="lead">竿・穂先・リールなど、手持ちの釣り道具の台帳</p>
+  <div class="stats" id="stats"></div>
+  </div>
+  <svg class="hero" viewBox="0 0 320 180" role="img" aria-label="竿を差した釣り道具箱くんのイラスト">
+    <defs>
+      <linearGradient id="gBox" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff8a3d"/><stop offset="1" stop-color="#e8550c"/></linearGradient>
+      <linearGradient id="gLid" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffa060"/><stop offset="1" stop-color="#f06a1e"/></linearGradient>
+      <linearGradient id="gFish" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff9aa6"/><stop offset="1" stop-color="#e2566b"/></linearGradient>
+    </defs>
+    <!-- 竿 -->
+    <g stroke-linecap="round">
+      <line x1="112" y1="104" x2="58" y2="14" stroke="#e9f1f6" stroke-width="3"/><line x1="70" y1="34" x2="58" y2="14" stroke="#ff6a1a" stroke-width="2"/>
+      <line x1="132" y1="104" x2="128" y2="6" stroke="#cfe0ea" stroke-width="3"/><line x1="129" y1="26" x2="128" y2="6" stroke="#ff6a1a" stroke-width="2"/>
+      <line x1="198" y1="104" x2="276" y2="10" stroke="#e9f1f6" stroke-width="3.2"/><line x1="262" y1="27" x2="276" y2="10" stroke="#ff6a1a" stroke-width="2"/>
+      <rect x="104" y="80" width="10" height="26" rx="3" fill="#0d1f2b" transform="rotate(-31 109 93)"/>
+      <rect x="127" y="78" width="10" height="28" rx="3" fill="#0d1f2b"/>
+      <rect x="194" y="80" width="10" height="26" rx="3" fill="#0d1f2b" transform="rotate(40 199 93)"/>
+    </g>
+    <!-- 糸と真鯛 -->
+    <path d="M276 10 Q284 40 282 70" fill="none" stroke="#fff" stroke-width="1" opacity=".8"/>
+    <g transform="translate(282 94) rotate(-95)">
+      <ellipse cx="0" cy="0" rx="22" ry="11" fill="url(#gFish)"/>
+      <path d="M-20 0 L-34 -10 L-31 0 L-34 10Z" fill="#e2566b"/>
+      <path d="M-6 -10 Q4 -18 12 -9" fill="#ff8b98"/>
+      <circle cx="13" cy="-3" r="2.4" fill="#fff"/><circle cx="13.6" cy="-3" r="1.2" fill="#0d1f2b"/>
+      <circle cx="-2" cy="-4" r="1" fill="#7fd8ff"/><circle cx="4" cy="2" r="1" fill="#7fd8ff"/><circle cx="-8" cy="3" r="1" fill="#7fd8ff"/>
+    </g>
+    <!-- ふた -->
+    <polygon points="72,100 248,100 238,70 82,70" fill="url(#gLid)"/>
+    <rect x="140" y="62" width="40" height="9" rx="4.5" fill="none" stroke="#ffd2b8" stroke-width="4"/>
+    <!-- 中の仕切りとルアー -->
+    <rect x="80" y="96" width="160" height="12" rx="2" fill="#ffe8d6"/>
+    <g><rect x="150" y="90" width="6" height="12" rx="3" fill="#7fd8ff"/><rect x="160" y="92" width="6" height="10" rx="3" fill="#ffd84d"/><rect x="170" y="90" width="6" height="12" rx="3" fill="#ffffff"/><rect x="180" y="92" width="6" height="10" rx="3" fill="#b0428a"/></g>
+    <!-- 本体（顔つき） -->
+    <rect x="66" y="104" width="188" height="58" rx="10" fill="url(#gBox)"/>
+    <rect x="66" y="104" width="188" height="6" rx="3" fill="#ffb47e" opacity=".8"/>
+    <rect x="148" y="104" width="24" height="12" rx="3" fill="#0b3a5b"/>
+    <ellipse cx="128" cy="134" rx="6" ry="7.5" fill="#0d1f2b"/><circle cx="130" cy="131" r="2.2" fill="#fff"/>
+    <ellipse cx="192" cy="134" rx="6" ry="7.5" fill="#0d1f2b"/><circle cx="194" cy="131" r="2.2" fill="#fff"/>
+    <path d="M148 144 Q160 154 172 144" fill="none" stroke="#0d1f2b" stroke-width="3.5" stroke-linecap="round"/>
+    <ellipse cx="110" cy="146" rx="8" ry="4.5" fill="#ff5f7a" opacity=".55"/><ellipse cx="210" cy="146" rx="8" ry="4.5" fill="#ff5f7a" opacity=".55"/>
+    <!-- リール -->
+    <g transform="translate(248 140)">
+      <circle r="16" fill="#cfd9e0" stroke="#5b6d79" stroke-width="2"/><circle r="9" fill="#0b3a5b"/><circle r="3" fill="#cfd9e0"/>
+      <line x1="0" y1="0" x2="20" y2="-12" stroke="#5b6d79" stroke-width="3" stroke-linecap="round"/><circle cx="21" cy="-13" r="4" fill="#ff6a1a"/>
+    </g>
+    <!-- 波 -->
+    <path d="M0 166 Q20 158 40 166 T80 166 T120 166 T160 166 T200 166 T240 166 T280 166 T320 166 V180 H0Z" fill="#7fd8ff" opacity=".35"/>
+    <ellipse cx="160" cy="166" rx="110" ry="5" fill="#04121c" opacity=".35"/>
+  </svg>
+  </div>
+  <div class="tabs" role="tablist" id="tabs"></div>
+  <svg class="wave" viewBox="0 0 400 28" preserveAspectRatio="none" aria-hidden="true"><path d="M0 20 Q25 12 50 20 T100 20 T150 20 T200 20 T250 20 T300 20 T350 20 T400 20 V28 H0Z" fill="#14557f" opacity=".5"/></svg>
+</header>
+<main>
+  <div id="vList">
+    <div class="vbar"><div class="seg" id="view" role="group" aria-label="表示方法"></div><div class="btns"><button class="btn" id="catEdit" hidden>分類の設定</button><button class="btn" id="syncBtn">同期</button><button class="btn save" id="load">読み込み</button><button class="btn save" id="save">保存（全部まとめて）</button><input type="file" id="file" accept=".xlsx,.csv,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" hidden></div></div>
+    <textarea class="csvbox" id="csvOut" readonly hidden aria-label="書き出した内容"></textarea>
+    <div class="tool">
+      <input id="q" type="search" placeholder="商品名・メーカー・メモで検索" aria-label="検索">
+      <select id="sort" aria-label="並び順">
+        <option value="def-a" selected>いつもの順（本人用→メーカー順）</option><option value="date-d">購入日が新しい順</option><option value="date-a">購入日が古い順</option>
+        <option value="price-d">価格が高い順</option><option value="len-d">長い順</option><option value="len-a">短い順</option>
+        <option value="wt-a">軽い順</option><option value="maker">メーカー順</option>
+      </select>
+    </div>
+    <div class="seg" id="who" role="group" aria-label="使う人"></div>
+    <div class="chips" id="chips"></div>
+    <div class="list" id="list"></div>
+    <div class="subtotal" id="sub"></div>
+    <p class="note" id="syncNote"></p>
+  </div>
+</main>
+<button class="fab" id="add">＋ 追加</button>
+
+<dialog id="dlg"><form id="f" method="dialog">
+  <h2 id="dTitle">竿を追加</h2>
+  <div class="grid" id="fields"></div>
+  <div class="foot">
+    <div class="btns"><button type="button" class="btn d" id="del">削除</button><button type="button" class="btn" id="dup">複製</button></div>
+    <div class="btns"><button type="button" class="btn" id="cancel">閉じる</button><button type="submit" class="btn p">保存</button></div>
+  </div>
+</form></dialog>
+<dialog id="dlgCat"><form id="fc" method="dialog">
+  <h2 id="cTitle">分類を追加</h2>
+  <div class="grid">
+    <label class="w">分類の名前<input name="label" required placeholder="例：ルアー、クーラー、タモ"></label>
+    <label>数え方<select name="unit"><option>個</option><option>本</option><option>台</option><option>枚</option><option>着</option><option>セット</option></select></label>
+  </div>
+  <p class="note">メーカー・商品名・品番・購入年月・価格・新品／中古・使う人・状態・メモは最初から入っています。ほかに記録したい項目があれば追加してください。</p>
+  <div id="cFields"></div>
+  <button type="button" class="btn" id="cAddField">＋ 項目を追加</button>
+  <p class="note warn" id="cMsg"></p>
+  <div class="foot">
+    <div class="btns"><button type="button" class="btn d" id="cDel">この分類を削除</button></div>
+    <div class="btns"><button type="button" class="btn" id="cCancel">閉じる</button><button type="submit" class="btn p">保存</button></div>
+  </div>
+</form></dialog>
+<dialog id="dlgImp"><form method="dialog" style="padding:18px">
+  <h2>読み込み</h2>
+  <p id="iMsg"></p>
+  <div class="btns" style="flex-direction:column;align-items:stretch">
+    <button type="button" class="btn p" id="iMerge">追加・更新する</button>
+    <button type="button" class="btn d" id="iReplace">全部置き換える</button>
+    <button type="button" class="btn" id="iCancel">やめる</button>
+  </div>
+  <p class="note">「追加・更新する」：このアプリで保存したファイルなら同じ道具は上書きし、ほかは追加します。<br>「全部置き換える」：ファイルにある分類について、今の登録を消してファイルの内容にします。</p>
+</form></dialog>
+<dialog id="dlgSync"><form id="fs" method="dialog" style="padding:18px">
+  <h2>スマホとパソコンの同期</h2>
+  <p class="note">Googleスプレッドシートを使って、どの端末でも同じデータにします。スプレッドシートの準備で作った「ウェブアプリのURL」と、Code.gs に書いた「合言葉」を入れてください。</p>
+  <label style="font-size:13px;color:var(--sub)">ウェブアプリのURL<input id="syncUrl" type="url" placeholder="https://script.google.com/macros/s/……/exec" autocomplete="off"></label>
+  <label style="font-size:13px;color:var(--sub);display:block;margin-top:10px">合言葉（パスワード）<input id="syncPw" type="password" autocomplete="current-password"></label>
+  <label style="font-size:13px;color:var(--sub);display:flex;gap:6px;align-items:center;margin-top:4px"><input type="checkbox" id="syncPwShow" style="width:auto;min-height:0"> 合言葉を表示する</label>
+  <p class="note" id="syncState"></p>
+  <div class="foot">
+    <div class="btns"><button type="button" class="btn d" id="syncOff">同期をやめる</button></div>
+    <div class="btns"><button type="button" class="btn" id="syncClose">閉じる</button><button type="submit" class="btn p">保存して同期</button></div>
+  </div>
+</form></dialog>
+<div class="toast" id="toast"><span id="tMsg"></span><button id="tUndo">元に戻す</button></div>
+
+<script>
+{
+const FIELDS={
+  rods:[["maker","メーカー","text"],["name","商品名","text","w"],["model","号数・品番","text"],["len","長さ（cm）","number"],
+        ["wt","自重（g）","number"],["date","購入年月","month"],["price","購入価格（円）","number"],["used","新品・中古","select"],["tip","穂先（番手）","text"],
+        ["owner","使う人","select"],["status","状態","select"],["memo","メモ","textarea","w"]],
+  tips:[["name","商品名","text","w"],["no","番手","text"],["len","長さ（cm）","number"],["date","購入年月","month"],
+        ["price","購入価格（円）","number"],["used","新品・中古","select"],["status","状態","select"],["memo","メモ（合う竿など）","textarea","w"]],
+  reels:[["type","種類","select"],["maker","メーカー","text"],["name","商品名","text","w"],["gear","ギア比","number","","0.1"],
+        ["drag","最大ドラグ力（kg）","number"],["reel","巻上長（cm/回転）","number"],["color","色","text"],["date","購入年月","month"],
+        ["price","購入価格（円）","number"],["used","新品・中古","select"],["owner","使う人","select"],["status","状態","select"],["memo","メモ（付けている竿・糸など）","textarea","w"]]
+};
+const STATUS=["使用中","予備","引退","廃棄"],OWNERS=["本人","家族"];
+const gone=x=>x.status==="引退"||x.status==="廃棄";
+const stamp=x=>gone(x)?`<span class="stamp${x.status==="廃棄"?" haiki":""}">${x.status}</span>`:"";
+const OPTS={status:STATUS,owner:OWNERS,used:["新品","中古"],type:["ベイト","スピニング"]};
+const usedTag=x=>x.used==="中古"?'<span class="used">中古</span>':"";
+const own=x=>x.owner||"本人";
+const MK=["ダイワ","シマノ","大郷屋","プロマリン","宇崎日新","プロトラスト"],mr=v=>{const i=MK.indexOf(v||"");return i<0?99:i};
+const opts=k=>OPTS[k];
+const $=id=>document.getElementById(id);
+const S={rods:[],tips:[],reels:[]};
+const LABEL={rods:"竿",tips:"穂先",reels:"リール"},UNIT={rods:"本",tips:"本",reels:"台"};
+const BUILTIN=["rods","tips","reels"];
+let TABS=[...BUILTIN],CATS=[];
+const isCustom=k=>k.startsWith("c_");
+/* 追加した分類：共通の項目＋自分で決めた項目 */
+function applyCats(list){
+  CATS=list.slice().sort((a,b)=>(a.o||0)-(b.o||0));
+  TABS=[...BUILTIN,...CATS.map(c=>c.key)];
+  CATS.forEach(c=>{
+    LABEL[c.key]=c.label;UNIT[c.key]=c.unit||"個";S[c.key]=S[c.key]||[];
+    const ex=(c.extra||[]).map(f=>[f.key,f.label,f.type==="number"?"number":"text"]);
+    FIELDS[c.key]=[["maker","メーカー","text"],["name","商品名","text","w"],["model","品番・サイズ","text"],...ex,
+      ["date","購入年月","month"],["price","購入価格（円）","number"],["used","新品・中古","select"],["owner","使う人","select"],["status","状態","select"],["memo","メモ","textarea","w"]];
+    COLS[c.key]=[["使う人",x=>`<span class="who ${own(x)==="家族"?"f":"m"}">${own(x)}</span>`],["メーカー",x=>esc(x.maker)],["商品名",x=>`<b>${esc(x.name)}</b>`,"nm"],["品番",x=>esc(x.model)],
+      ...(c.extra||[]).map(f=>[f.label,x=>f.type==="number"?num(x[f.key]):esc(x[f.key])||"—",f.type==="number"?"r":""]),
+      ["購入",x=>ym(x.date)],["価格",x=>yen(x.price),"r"],["新/中",x=>x.used==="中古"?'<span class="used">中古</span>':"新品"],["状態",x=>esc(x.status||"使用中")]];
+  });
+  if(!TABS.includes(tab))tab="rods";
+  renderTabs();
+}
+function renderTabs(){
+  $("tabs").innerHTML=TABS.map(k=>`<button role="tab" data-k="${k}" aria-selected="${k===tab}">${esc(LABEL[k])}</button>`).join("")+
+    `<button class="addcat" id="addCat" title="分類を追加">＋ 分類</button>`;
+}
+let watch=()=>{};
+let view=(()=>{try{return localStorage.getItem("saoView2")||"table"}catch(e){return "table"}})(),tab="rods",maker="すべて",who="すべて",editing=null,lastDel=null,db=null,useLocal=false;
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const yen=n=>n?"¥"+Number(n).toLocaleString("ja-JP"):"—";
+const ym=d=>d?d.replace(/^(\d{4})-(\d{2})$/,(m,y,mo)=>y+"年"+Number(mo)+"月"):"—";
+const sharp=s=>String(s||"").replace(/[#＃]/g,"♯");
+
+/* 保存先：db（どの端末でも同じデータ）／使えない時はこの端末のみ */
+const LS="tsuriDouguBako.v1";
+const SEED={"rods":[{"id":"r01","date":"2023-10","len":350,"maker":"ダイワ","memo":"","model":"S-350V","name":"シーパラダイス","o":1,"owner":"本人","price":6000,"status":"使用中","tip":"♯7","used":"中古","wt":150},{"id":"r02","date":"2020-11","len":350,"maker":"ダイワ","memo":"","model":"S-350V","name":"18シーパラダイス","o":2,"owner":"本人","price":12000,"status":"使用中","tip":"","used":"新品","wt":150},{"id":"r03","date":"2025-07","len":400,"maker":"ダイワ","memo":"","model":"S-400V","name":"シーパラダイス","o":3,"owner":"本人","price":7600,"status":"使用中","tip":"","used":"中古","wt":175},{"id":"r04","date":"2022-05","len":350,"maker":"ダイワ","memo":"","model":"H-350E","name":"17シーパラダイス","o":4,"price":13000,"status":"使用中","tip":"","wt":230},{"id":"r05","date":"2025-01","len":250,"maker":"シマノ","memo":"","model":"250","name":"シーマークベイトさぐり","o":5,"owner":"本人","price":12000,"status":"使用中","tip":"","used":"中古","wt":144},{"id":"r06","date":"2022-08","len":360,"maker":"プロトラスト","memo":"","model":"360","name":"海上釣堀ブルーバトル","o":6,"owner":"家族","price":4400,"status":"使用中","tip":"","wt":453},{"id":"r07","date":"2023-11","len":340,"maker":"大郷屋","memo":"","model":"340","name":"脈釣王 ZOOM EX","o":7,"owner":"本人","price":15000,"status":"使用中","tip":"♯6","used":"中古","wt":194},{"id":"r08","date":"2026-05","len":450,"maker":"大郷屋","memo":"","model":"450","name":"脈釣王 ZOOM","o":8,"owner":"本人","price":6700,"status":"使用中","tip":"♯6","used":"中古","wt":270},{"id":"r09","date":"2018-05","len":180,"maker":"宇崎日新","memo":"","model":"180","name":"スーパースクエアRX海上釣堀","o":9,"owner":"家族","price":5300,"status":"使用中","tip":"","used":"中古","wt":105},{"id":"r10","date":"2021-07","len":300,"maker":"プロマリン","memo":"","model":"300H","name":"CBグランペイ海上釣堀","o":10,"owner":"家族","price":3500,"status":"使用中","tip":"","wt":213},{"id":"r11","date":"2021-07","len":300,"maker":"プロマリン","memo":"","model":"300H","name":"CBグランペイ海上釣堀","o":11,"owner":"家族","price":3500,"status":"使用中","tip":"","wt":213},{"id":"r12","date":"2024-08","len":360,"maker":"プロマリン","memo":"","model":"360H","name":"CBグラディア海上釣堀","o":12,"price":4300,"status":"使用中","tip":"","wt":238}],"tips":[{"id":"t01","date":"2026-04","len":null,"memo":"","name":"高感度脈釣穂先","no":"♯7","o":1,"price":5980,"status":"使用中"},{"id":"t02","date":"2025-11","len":null,"memo":"","name":"高感度脈釣穂先","no":"♯7","o":2,"price":5681,"status":"使用中"},{"id":"t03","date":"2025-05","len":null,"memo":"","name":"高感度脈釣穂先","no":"♯7","o":3,"price":5681,"status":"廃棄","used":"新品"},{"id":"t04","date":"2024-05","len":null,"memo":"","name":"高感度繊細脈釣穂先","no":"♯7","o":4,"price":6100,"status":"廃棄","used":"新品"},{"id":"t05","date":"2022-07","len":null,"memo":"","name":"高感度脈釣穂先","no":"♯7","o":5,"price":5500,"status":"廃棄","used":"新品"}],"reels":[{"id":"l01","color":"","date":"2018-05","drag":4,"gear":6.3,"maker":"ダイワ","memo":"","name":"ICV200H","o":1,"owner":"本人","price":10500,"reel":71,"status":"使用中","type":"ベイト","used":"新品"},{"id":"l02","color":"黒","date":"2025-12","drag":4,"gear":6.3,"maker":"ダイワ","memo":"","name":"ICV200H","o":2,"owner":"本人","price":7200,"reel":71,"status":"使用中","type":"ベイト","used":"中古"},{"id":"l03","color":"","date":"2026-05","drag":4,"gear":6.3,"maker":"ダイワ","memo":"","name":"ライトゲームICV 150H","o":3,"owner":"本人","price":6700,"reel":71,"status":"使用中","type":"ベイト","used":"中古"},{"id":"l04","color":"金","date":"2025-12","drag":4,"gear":6.3,"maker":"ダイワ","memo":"","name":"ICV150 R","o":4,"owner":"本人","price":5200,"reel":71,"status":"使用中","type":"ベイト","used":"中古"},{"id":"l05","color":"赤","date":"2025-12","drag":4,"gear":6.3,"maker":"ダイワ","memo":"","name":"ICV150 RW","o":5,"owner":"本人","price":4300,"reel":71,"status":"使用中","type":"ベイト","used":"中古"},{"id":"l06","color":"","date":"2021-09","drag":5,"gear":7,"maker":"シマノ","memo":"","name":"17バルケッタBB300HGDH","o":6,"owner":"本人","price":25000,"reel":70,"status":"使用中","type":"ベイト","used":"新品"},{"id":"l07","color":"","date":"2025-07","drag":5,"gear":5.8,"maker":"シマノ","memo":"","name":"21バルケッタBB150DH-PG","o":7,"owner":"本人","price":14000,"reel":58,"status":"使用中","type":"ベイト","used":"新品"},{"id":"l08","color":"","date":"2015-04","drag":3,"gear":5.2,"maker":"シマノ","memo":"","name":"アリビオ2500","o":8,"owner":"本人","price":2800,"reel":73,"status":"使用中","type":"スピニング","used":"新品"},{"id":"l09","color":"","date":"2016-08","drag":3,"gear":5.2,"maker":"シマノ","memo":"","name":"アリビオ2500","o":9,"owner":"本人","price":2700,"reel":73,"status":"使用中","type":"スピニング","used":"新品"},{"id":"l10","color":"","date":"2017-09","drag":3,"gear":5.2,"maker":"シマノ","memo":"","name":"アリビオ2500","o":10,"owner":"本人","price":3100,"reel":73,"status":"使用中","type":"スピニング","used":"新品"},{"id":"l11","color":"","date":"2019-04","drag":2,"gear":5.3,"maker":"ダイワ","memo":"","name":"16ジョイナス2000","o":11,"owner":"本人","price":2100,"reel":72,"status":"使用中","type":"スピニング","used":"新品"},{"id":"l12","color":"","date":"2019-04","drag":2,"gear":5.3,"maker":"ダイワ","memo":"","name":"16ジョイナス2000","o":12,"owner":"本人","price":2100,"reel":72,"status":"使用中","type":"スピニング","used":"新品"},{"id":"l13","color":"","date":"2021-07","drag":8.5,"gear":5.2,"maker":"シマノ","memo":"","name":"19シエナ4000","o":13,"owner":"本人","price":3700,"reel":82,"status":"使用中","type":"スピニング","used":"新品"},{"id":"l14","color":"","date":"2022-08","drag":8.5,"gear":5.2,"maker":"シマノ","memo":"","name":"19シエナ4000","o":14,"owner":"本人","price":3700,"reel":82,"status":"使用中","type":"スピニング","used":"新品"},{"id":"l15","color":"","date":"2024-11","drag":11,"gear":4.7,"maker":"シマノ","memo":"","name":"21ナスキー 4000","o":15,"owner":"本人","price":10300,"reel":75,"status":"使用中","type":"スピニング","used":"新品"},{"id":"l16","color":"","date":"2024-11","drag":12,"gear":6.2,"maker":"ダイワ","memo":"","name":"24レブロス LT5000-CXH","o":16,"owner":"本人","price":9100,"reel":105,"status":"使用中","type":"スピニング","used":"新品"}],"cats":[]};
+function saveLocal(){try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}stampLocal();schedulePush()}
+function loadLocal(){let j=null;try{j=JSON.parse(localStorage.getItem(LS)||"null")}catch(e){}if(!j){j=JSON.parse(JSON.stringify(SEED));try{localStorage.setItem(LS,JSON.stringify(j))}catch(e){}}Object.assign(S,j);S.cats=j.cats||[]}
+const col=k=>db.collection("data/tackle/"+k);
+async function put(k,item){
+  if(useLocal){const a=S[k],i=a.findIndex(x=>x.id===item.id);i<0?a.push(item):a[i]=item;saveLocal();render();return}
+  const {id,...body}=item;await col(k).doc(id).set(body);
+}
+async function remove(k,id){
+  if(useLocal){S[k]=S[k].filter(x=>x.id!==id);saveLocal();render();return}
+  await col(k).doc(id).delete();
+}
+function newId(k){return k[0]+Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+
+function rodSvg(len,kind){
+  const L=Math.max(30,Math.min(Number(len)||300,480)),w=L/480*100,tipW=kind==="tips"?w:Math.max(w*.18,4);
+  return `<svg class="rod" viewBox="0 0 100 22" preserveAspectRatio="none" aria-hidden="true">
+  <line x1="0" y1="18" x2="100" y2="18" stroke="var(--line)" stroke-width=".6" stroke-dasharray="1 1.5"/>
+  ${kind==="rods"?`<polygon points="0,9 ${w-tipW},10.3 ${w-tipW},11.7 0,13" fill="var(--rod)"/><rect x="0" y="8.4" width="${Math.min(14,w*.3)}" height="5.2" rx="1" fill="var(--sea2)"/>`:""}
+  <polygon points="${w-tipW},10.4 ${w},10.9 ${w},11.1 ${w-tipW},11.6" fill="var(--buoy)" stroke="var(--buoy)" stroke-width=".5"/></svg>`;
+}
+function filtered(){
+  const q=$("q").value.trim().toLowerCase();
+  let a=S[tab].filter(x=>(tab==="tips"||who==="すべて"||own(x)===who)&&(maker==="すべて"||(tab==="rods"||isCustom(tab)?x.maker===maker:tab==="reels"?(x.type===maker||x.maker===maker):x.status===maker))&&
+    (!q||Object.values(x).join(" ").toLowerCase().includes(q)));
+  const [k,d]=$("sort").value.split("-"),m=d==="d"?-1:1;
+  const byMaker=(x,y)=>mr(x.maker)-mr(y.maker)||String(x.maker||"").localeCompare(y.maker||"","ja");
+  const byDate=(x,y)=>String(y.date||"").localeCompare(x.date||"");
+  a.sort((x,y)=>k==="def"?(tab==="tips"?byDate(x,y):(own(x)==="本人"?0:1)-(own(y)==="本人"?0:1)||byMaker(x,y)||String(x.name||"").localeCompare(y.name||"","ja")||byDate(x,y)):
+    k==="maker"?byMaker(x,y)||byDate(x,y):
+    k==="date"?m*String(x.date||"").localeCompare(y.date||""):m*((Number(x[k])||0)-(Number(y[k])||0)));
+  return a;
+}
+function card(x){
+  const st=(x.status&&x.status!=="使用中"?` <span class="tag g">${esc(x.status)}</span>`:"");const oc=own(x)==="家族"?"f":"m";
+  if(tab==="rods"){
+    const tipCount=x.tip?S.tips.filter(t=>sharp(t.no)===sharp(x.tip)&&!gone(t)).length:0;
+    return `<button class="item own-${oc}${gone(x)?" off":""}${x.status==="廃棄"?" haiki":""}" data-id="${esc(x.id)}">
+      <div class="top"><div><span class="who ${oc}">${own(x)}用</span><div class="mk">${esc(x.maker)}</div><div class="nm"><span class="t">${esc(x.name)} ${esc(x.model)}</span>${st}</div></div><div style="text-align:right">${usedTag(x)}<div class="pr num">${yen(x.price)}</div></div></div>
+      ${rodSvg(x.len,"rods")}
+      <div class="meta"><span>長さ <b class="num">${x.len?(x.len/100).toFixed(2)+"m":"—"}</b></span><span>自重 <b class="num">${x.wt?x.wt+"g":"—"}</b></span><span>購入 <b>${ym(x.date)}</b></span>
+      ${x.tip?`<span><span class="tag">穂先 ${esc(sharp(x.tip))}</span> 替え${tipCount}本</span>`:""}</div>
+      ${x.memo?`<div class="meta">${esc(x.memo)}</div>`:""}${stamp(x)}</button>`;
+  }
+  if(tab==="reels"){
+    return `<button class="item own-${oc}${gone(x)?" off":""}${x.status==="廃棄"?" haiki":""}" data-id="${esc(x.id)}">
+      <div class="top"><div><span class="kind ${x.type==="スピニング"?"sp":"bt"}">${esc(x.type||"種類未設定")}</span> <span class="who ${oc}">${own(x)}用</span><div class="mk">${esc(x.maker)}</div><div class="nm"><span class="t">${esc(x.name)}</span>${x.status==="予備"?st:""}</div></div><div style="text-align:right">${usedTag(x)}<div class="pr num">${yen(x.price)}</div></div></div>
+      <div class="specs"><span><small>ギア比</small><b class="num">${x.gear!=null&&x.gear!==""?Number(x.gear).toFixed(1):"—"}</b></span><span><small>最大ドラグ</small><b class="num">${x.drag!=null?x.drag+"kg":"—"}</b></span><span><small>巻上長</small><b class="num">${x.reel!=null?x.reel+"cm":"—"}</b></span></div>
+      <div class="meta"><span>購入 <b>${ym(x.date)}</b></span>${x.color?`<span>色 <b>${esc(x.color)}</b></span>`:""}</div>
+      ${x.memo?`<div class="meta">${esc(x.memo)}</div>`:""}${stamp(x)}</button>`;
+  }
+  if(isCustom(tab)){
+    const c=CATS.find(c=>c.key===tab),ex=(c&&c.extra||[]).filter(f=>x[f.key]!=null&&x[f.key]!=="");
+    return `<button class="item own-${oc}${gone(x)?" off":""}${x.status==="廃棄"?" haiki":""}" data-id="${esc(x.id)}">
+      <div class="top"><div><span class="who ${oc}">${own(x)}用</span><div class="mk">${esc(x.maker)}</div><div class="nm"><span class="t">${esc(x.name)} ${esc(x.model)}</span>${x.status==="予備"?st:""}</div></div><div style="text-align:right">${usedTag(x)}<div class="pr num">${yen(x.price)}</div></div></div>
+      <div class="meta">${ex.map(f=>`<span>${esc(f.label)} <b>${esc(x[f.key])}</b></span>`).join("")}<span>購入 <b>${ym(x.date)}</b></span></div>
+      ${x.memo?`<div class="meta">${esc(x.memo)}</div>`:""}${stamp(x)}</button>`;
+  }
+  return `<button class="item${gone(x)?" off":""}${x.status==="廃棄"?" haiki":""}" data-id="${esc(x.id)}">
+    <div class="top"><div><div class="nm"><span class="t">${esc(x.name)}</span> <span class="tag${gone(x)?" g":""}">${esc(sharp(x.no))}</span>${x.status==="予備"?st:""}</div></div><div style="text-align:right">${usedTag(x)}<div class="pr num">${yen(x.price)}</div></div></div>
+    <div class="meta"><span>購入 <b>${ym(x.date)}</b></span>${x.len?`<span>長さ <b class="num">${x.len}cm</b></span>`:""}</div>
+    ${x.memo?`<div class="meta">${esc(x.memo)}</div>`:""}${stamp(x)}</button>`;
+}
+function renderStats(){
+  const sum=TABS.flatMap(k=>S[k]).reduce((s,x)=>s+(Number(x.price)||0),0);
+  $("stats").innerHTML=TABS.map(k=>`<div class="stat s-${k}"><b class="num">${S[k].filter(x=>!gone(x)).length}<small style="font-size:.5em">${UNIT[k]}</small></b><span>${LABEL[k]}</span></div>`).join("")+`
+  <div class="stat"><b class="num">${Math.round(sum/1000).toLocaleString("ja-JP")}<small style="font-size:.5em">千円</small></b><span>購入額の合計</span></div>`;
+}
+function renderList(){
+  const keys=tab==="rods"||isCustom(tab)?[...new Set(S[tab].map(x=>x.maker).filter(Boolean))].sort((p,q)=>mr(p)-mr(q)||p.localeCompare(q,"ja")):tab==="reels"?[...OPTS.type.filter(t=>S.reels.some(x=>x.type===t)),...new Set(S.reels.map(x=>x.maker).filter(Boolean))]:STATUS.filter(s=>S.tips.some(x=>(x.status||"使用中")===s));
+  if(maker!=="すべて"&&!keys.includes(maker))maker="すべて";
+  $("who").hidden=tab==="tips";
+  $("who").innerHTML=["すべて",...OWNERS].map(k=>`<button aria-pressed="${k===who}" data-k="${k}">${k==="すべて"?"全員":k+"用"}<span class="num"> ${k==="すべて"?S[tab].length:S[tab].filter(x=>own(x)===k).length}</span></button>`).join("");
+  $("chips").innerHTML=["すべて",...keys].map(k=>`<button class="chip" aria-pressed="${k===maker}" data-k="${esc(k)}">${esc(k)}</button>`).join("");
+    $("catEdit").hidden=!isCustom(tab);
+  $("view").innerHTML=[["table","一覧表"],["card","カード"]].map(([k,l])=>`<button aria-pressed="${k===view}" data-k="${k}">${l}</button>`).join("");
+  const a=filtered(),asTable=view==="table";
+  const groups=[];const live=a.filter(x=>!gone(x));
+  if(tab==="reels")["ベイト","スピニング",""].forEach(t=>{const v=live.filter(x=>(OPTS.type.includes(x.type)?x.type:"")===t);
+    if(v.length)groups.push([`<div class="sect kh ${t==="スピニング"?"sp":t?"bt":""}">${t||"種類未設定"}（${v.length}台）</div>`,v])});
+  else groups.push(["",live]);
+  ["引退","廃棄"].forEach(s=>{const v=a.filter(x=>x.status===s);if(v.length)groups.push([`<div class="sect">${s}した${LABEL[tab]}（${v.length}${UNIT[tab]}）</div>`,v])});
+  $("list").classList.toggle("tbl",asTable);
+  {const all=S[tab]||[],u=UNIT[tab],sumP=v=>v.reduce((s,x)=>s+(Number(x.price)||0),0),y=n=>Number(n).toLocaleString("ja-JP")+"円";
+   const act=all.filter(x=>!gone(x)),old=all.filter(gone),filt=a.length!==all.length;
+   $("sub").innerHTML=all.length?`<div class="st-t">${esc(LABEL[tab])}の小計</div>
+   <div class="st-row"><span>全部</span><b class="num">${all.length}${u}</b><b class="num">${y(sumP(all))}</b></div>
+   <div class="st-row s"><span>使用中・予備</span><b class="num">${act.length}${u}</b><b class="num">${y(sumP(act))}</b></div>
+   ${old.length?`<div class="st-row s"><span>引退・廃棄</span><b class="num">${old.length}${u}</b><b class="num">${y(sumP(old))}</b></div>`:""}
+   ${filt?`<div class="st-row f"><span>いま表示中</span><b class="num">${a.length}${u}</b><b class="num">${y(sumP(a))}</b></div>`:""}`:""}
+  $("list").innerHTML=a.length?groups.map(([hd,v])=>hd+(asTable?table(v):v.map(card).join(""))).join(""):
+    `<div class="empty">${S[tab].length?"条件に合うものがありません":"まだ登録がありません。右下の「＋ 追加」から登録できます"}</div>`;
+}
+const num=(v,u,f)=>v==null||v===""?"—":(f?Number(v).toFixed(f):v)+(u||"");
+const COLS={
+  rods:[["使う人",x=>`<span class="who ${own(x)==="家族"?"f":"m"}">${own(x)}</span>`],["メーカー",x=>esc(x.maker)],["商品名",x=>`<b>${esc(x.name)}</b>`,"nm"],["品番",x=>esc(x.model)],
+    ["長さ",x=>x.len?(x.len/100).toFixed(2)+"m":"—","r"],["自重",x=>num(x.wt,"g"),"r"],["穂先",x=>esc(sharp(x.tip))||"—"],["購入",x=>ym(x.date)],["価格",x=>yen(x.price),"r"],["新/中",x=>x.used==="中古"?'<span class="used">中古</span>':"新品"],["状態",x=>esc(x.status||"使用中")]],
+  tips:[["商品名",x=>`<b>${esc(x.name)}</b>`,"nm"],["番手",x=>`<span class="tag${gone(x)?" g":""}">${esc(sharp(x.no))||"—"}</span>`],["長さ",x=>num(x.len,"cm"),"r"],
+    ["購入",x=>ym(x.date)],["価格",x=>yen(x.price),"r"],["新/中",x=>x.used==="中古"?'<span class="used">中古</span>':"新品"],["状態",x=>esc(x.status||"使用中")],["メモ",x=>esc(x.memo),"nm"]],
+  reels:[["使う人",x=>`<span class="who ${own(x)==="家族"?"f":"m"}">${own(x)}</span>`],["メーカー",x=>esc(x.maker)],["商品名",x=>`<b>${esc(x.name)}</b>`,"nm"],
+    ["ギア比",x=>num(x.gear,"",1),"r"],["ドラグ",x=>num(x.drag,"kg"),"r"],["巻上長",x=>num(x.reel,"cm"),"r"],["色",x=>esc(x.color)||"—"],["購入",x=>ym(x.date)],["価格",x=>yen(x.price),"r"],["新/中",x=>x.used==="中古"?'<span class="used">中古</span>':"新品"],["状態",x=>esc(x.status||"使用中")]]
+};
+function table(v){
+  const c=COLS[tab];
+  return `<div class="scroll tw"><table><thead><tr>${c.map(([l,,k])=>`<th class="${k||""}">${l}</th>`).join("")}</tr></thead><tbody>${
+    v.map((x,i)=>`<tr class="${gone(x)?"off":""}${i>0&&tab!=="tips"&&(x.maker||"")!==(v[i-1].maker||"")?" brk":""}${tab==="tips"?"":" own-"+(own(x)==="家族"?"f":"m")}" data-id="${esc(x.id)}" tabindex="0">${c.map(([,f,k])=>`<td class="${k||""}">${f(x)}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+}
+function render(){renderStats();renderList()}
+
+/* 編集ダイアログ */
+function openForm(item){
+  editing=item?{...item}:{id:null,status:"使用中",type:"ベイト",owner:who==="家族"?"家族":"本人"};
+  $("dTitle").textContent=(item?"編集：":"追加：")+LABEL[tab];
+  $("del").hidden=$("dup").hidden=!item;
+  $("fields").innerHTML=FIELDS[tab].map(([k,l,t,w])=>`<label class="${w||""}">${l}${
+    t==="select"?`<select name="${k}">${opts(k).map(s=>`<option${(editing[k]||opts(k)[0])===s?" selected":""}>${s}</option>`).join("")}</select>`:
+    t==="textarea"?`<textarea name="${k}" rows="2">${esc(editing[k])}</textarea>`:
+    `<input name="${k}" type="${t}" ${t==="number"?'inputmode="decimal" min="0" step="any"':""} value="${esc(editing[k])}">`}</label>`).join("");
+  $("dlg").showModal();
+}
+$("f").addEventListener("submit",async e=>{
+  e.preventDefault();
+  const fd=new FormData($("f")),k=tab,item={...editing};
+  FIELDS[k].forEach(([n,,t])=>{let v=(fd.get(n)||"").toString().trim();item[n]=t==="number"?(v===""?null:Number(v)):v});
+  if(!item.name){$("f").querySelector('[name=name]').focus();return}
+  if(!item.id){item.id=newId(k);item.o=Date.now()}
+  $("dlg").close();
+  try{await put(k,item);toast("保存しました",false)}catch(err){toast("保存できませんでした："+(err.code||err.message),false)}
+});
+$("cancel").onclick=()=>$("dlg").close();
+$("dup").onclick=async()=>{const k=tab,c={...editing,id:newId(k),o:Date.now()};$("dlg").close();try{await put(k,c);toast("複製しました",false)}catch(e){toast("複製できませんでした",false)}};
+$("del").onclick=async()=>{
+  const k=tab,item=S[k].find(x=>x.id===editing.id);if(!item)return;$("dlg").close();
+  lastDel={k,item};try{await remove(k,item.id);toast(`「${item.name}」を削除しました`,true)}catch(e){toast("削除できませんでした",false)}
+};
+let tT;function toast(m,undo){$("tMsg").textContent=m;$("tUndo").hidden=!undo;$("toast").style.display="flex";clearTimeout(tT);tT=setTimeout(()=>$("toast").style.display="none",undo?6000:2200)}
+$("tUndo").onclick=async()=>{if(!lastDel)return;$("toast").style.display="none";await put(lastDel.k,lastDel.item);lastDel=null};
+
+/* 画面操作 */
+function setTab(t){tab=t;maker="すべて";
+  $("tabs").querySelectorAll("[data-k]").forEach(b=>b.setAttribute("aria-selected",b.dataset.k===t));
+  $("q").value="";$("csvOut").hidden=true;render()}
+$("tabs").onclick=e=>{const b=e.target.closest("button");if(!b)return;if(b.id==="addCat")openCat(null);else setTab(b.dataset.k)};
+$("q").oninput=renderList;$("sort").onchange=renderList;
+$("who").onclick=e=>{const b=e.target.closest("button");if(b){who=b.dataset.k;renderList()}};
+$("chips").onclick=e=>{const b=e.target.closest(".chip");if(b){maker=b.dataset.k;renderList()}};
+/* 保存：全部の分類を1つのExcelファイル（分類ごとにシート）に */
+let xlsxP=null;
+function loadXLSX(){if(window.XLSX)return Promise.resolve(window.XLSX);
+  return xlsxP=xlsxP||new Promise((ok,ng)=>{const s=document.createElement("script");s.src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js";s.onload=()=>ok(window.XLSX);s.onerror=()=>{xlsxP=null;ng(new Error("Excel機能を読み込めませんでした（通信を確認してください）"))};document.head.appendChild(s)})}
+function colsOf(k){
+  return [...(k!=="tips"?[["使う人",x=>own(x)]]:[]),...FIELDS[k].filter(f=>f[0]!=="owner").map(([n,l,t])=>[l,x=>n==="date"?(x.date?ym(x.date):""):
+    n==="gear"&&x.gear!=null&&x.gear!==""?Number(Number(x.gear).toFixed(1)):n==="tip"||n==="no"?sharp(x[n]):n==="status"?(x.status||"使用中"):n==="used"?(x.used||"新品"):
+    t==="number"?(x[n]==null||x[n]===""?"":Number(x[n])):(x[n]??"")]),["ID",x=>x.id]];
+}
+function rowsOf(k){
+  const sv=[tab,$("q").value,maker,who];tab=k;$("q").value="";maker="すべて";who="すべて";const all=filtered();[tab,$("q").value,maker,who]=sv;
+  const c=colsOf(k);return [c.map(x=>x[0]),...all.sort((a,b)=>(gone(a)?1:0)-(gone(b)?1:0)).map(x=>c.map(f=>f[1](x)))];
+}
+const sheetName=s=>String(s).replace(/[\[\]:*?\/\\]/g,"").slice(0,31)||"分類";
+async function saveAll(){
+  const d=new Date(),stamp=d.getFullYear()+String(d.getMonth()+1).padStart(2,"0")+String(d.getDate()).padStart(2,"0");
+  const name=`釣り道具箱_${stamp}.xlsx`;
+  let X;try{X=await loadXLSX()}catch(err){toast(err.message,false);return}
+  const wb=X.utils.book_new();
+  TABS.forEach(k=>{const rows=rowsOf(k),ws=X.utils.aoa_to_sheet(rows);
+    ws["!cols"]=rows[0].map((hd,i)=>({wch:Math.min(40,Math.max(6,...rows.map(r=>String(r[i]??"").length*1.8)))}));
+    X.utils.book_append_sheet(wb,ws,sheetName(LABEL[k]))});
+  if(CATS.length){const ws=X.utils.aoa_to_sheet([["分類","数え方","追加の項目（このシートは消さないでください）"],...CATS.map(c=>[c.label,c.unit||"個",JSON.stringify(c.extra||[])])]);X.utils.book_append_sheet(wb,ws,"分類の設定")}
+  const buf=X.write(wb,{bookType:"xlsx",type:"array"});
+  if(!window.claude){const b=new Blob([buf],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}),u=URL.createObjectURL(b),a=document.createElement("a");a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),3000);toast(`「${name}」を保存しました`,false);return}
+  try{const dl=await claude.use("downloads");if(!dl)throw {code:"unavailable"};await dl.save({filename:name,data:buf});toast(`「${name}」を保存しました`,false)}
+  catch(err){if(err&&err.code==="declined")return;toast("保存できませんでした（"+(err&&err.code||"エラー")+"）",false)}
+}
+$("save").onclick=saveAll;
+
+$("view").onclick=e=>{const b=e.target.closest("button");if(b){view=b.dataset.k;try{localStorage.setItem("saoView2",view)}catch(err){}renderList()}};
+$("list").onkeydown=e=>{if(e.key==="Enter"){const r=e.target.closest("tr[data-id]");if(r)openForm(S[tab].find(x=>x.id===r.dataset.id))}};
+$("list").onclick=e=>{const b=e.target.closest(".item,tr[data-id]");if(b)openForm(S[tab].find(x=>x.id===b.dataset.id))};
+$("add").onclick=()=>openForm(null);
+
+/* 分類の追加・設定 */
+let catEditing=null,delArmed=false;const fcI=n=>$("fc").querySelector(`[name=${n}]`);
+function fieldRow(f){return `<div class="frow" data-key="${esc(f.key||"")}"><input placeholder="項目名（例：号数、重さ）" value="${esc(f.label||"")}" aria-label="項目名"><select aria-label="種類"><option value="text"${f.type!=="number"?" selected":""}>文字</option><option value="number"${f.type==="number"?" selected":""}>数字</option></select><button type="button" class="x" aria-label="この項目を外す">×</button></div>`}
+function openCat(c){
+  catEditing=c;delArmed=false;$("cMsg").textContent="";
+  $("cTitle").textContent=c?"分類の設定："+c.label:"分類を追加";
+  fcI("label").value=c?c.label:"";fcI("unit").value=c?(c.unit||"個"):"個";
+  $("cFields").innerHTML=(c?c.extra||[]:[{}]).map(fieldRow).join("");
+  $("cDel").hidden=!c;$("dlgCat").showModal();fcI("label").focus();
+}
+$("cAddField").onclick=()=>$("cFields").insertAdjacentHTML("beforeend",fieldRow({}));
+$("cFields").onclick=e=>{const x=e.target.closest(".x");if(x)x.parentElement.remove()};
+$("cCancel").onclick=()=>$("dlgCat").close();
+$("catEdit").onclick=()=>openCat(CATS.find(c=>c.key===tab));
+async function putCat(c){
+  if(useLocal){S.cats=(S.cats||[]).filter(x=>x.id!==c.id).concat([c]);saveLocal();applyCats(S.cats);render();return}
+  const {id,key,...body}=c;await col("cats").doc(id).set(body);applyCats([...CATS.filter(x=>x.id!==c.id),c]);
+}
+$("fc").addEventListener("submit",async e=>{
+  e.preventDefault();
+  const label=fcI("label").value.trim();if(!label)return;
+  if([...BUILTIN.map(k=>LABEL[k]),...CATS.filter(c=>c!==catEditing).map(c=>c.label)].includes(label)){$("cMsg").textContent="同じ名前の分類があります";return}
+  const extra=[...$("cFields").querySelectorAll(".frow")].map((r,i)=>({key:r.dataset.key||"f"+Date.now().toString(36)+i,label:r.querySelector("input").value.trim(),type:r.querySelector("select").value})).filter(f=>f.label);
+  const id=catEditing?catEditing.id:Date.now().toString(36)+Math.random().toString(36).slice(2,5);
+  const c={id,key:"c_"+id,label,unit:fcI("unit").value,extra,o:catEditing?catEditing.o:Date.now()};
+  $("dlgCat").close();
+  try{await putCat(c);if(!catEditing){tab=c.key;if(!useLocal)watch(c.key)}renderTabs();setTab(tab);toast(`「${label}」を${catEditing?"変更":"追加"}しました`,false)}
+  catch(err){toast("保存できませんでした："+(err.code||err.message),false)}
+});
+$("cDel").onclick=async()=>{
+  const c=catEditing;if(!c)return;const n=(S[c.key]||[]).length;
+  if(!delArmed){delArmed=true;$("cMsg").textContent=n?`中に${n}${c.unit||"個"}登録があります。もう一度押すと、中の道具もまとめて削除します。`:"もう一度押すと削除します。";return}
+  $("dlgCat").close();
+  try{
+    for(const x of (S[c.key]||[]).slice())await remove(c.key,x.id);
+    if(useLocal){S.cats=(S.cats||[]).filter(x=>x.id!==c.id);delete S[c.key];saveLocal();applyCats(S.cats)}else{await col("cats").doc(c.id).delete();applyCats(CATS.filter(x=>x.id!==c.id))}
+    tab="rods";renderTabs();setTab("rods");toast(`「${c.label}」を削除しました`,false);
+  }catch(err){toast("削除できませんでした",false)}
+};
+
+/* 読み込み（このアプリで保存したCSV、またはExcelでCSV保存したもの） */
+function parseCSV(t){
+  const rows=[];let row=[],f="",q=false;
+  for(let i=0;i<t.length;i++){const ch=t[i];
+    if(q){if(ch==='"'){if(t[i+1]==='"'){f+='"';i++}else q=false}else f+=ch}
+    else if(ch==='"')q=true;else if(ch===","){row.push(f);f=""}
+    else if(ch==="\n"||ch==="\r"){if(ch==="\r"&&t[i+1]==="\n")i++;row.push(f);rows.push(row);row=[];f=""}
+    else f+=ch}
+  if(f!==""||row.length){row.push(f);rows.push(row)}
+  return rows.filter(r=>r.some(c=>c.trim()!==""));
+}
+const norm=s=>String(s||"").replace(/^\ufeff/,"").replace(/[（(].*?[）)]/g,"").replace(/\s/g,"");
+/* 読み込み：まとめて保存したExcel（全分類）またはCSV（開いているタブ） */
+function itemsFrom(k,rows){
+  const head=rows[0].map(norm),fmap=FIELDS[k].map(([n,l,t])=>({n,t,i:head.indexOf(norm(l))}));
+  const ow=head.indexOf("使う人"),idc=head.indexOf("ID");
+  if(fmap.find(f=>f.n==="name").i<0)return null;
+  return rows.slice(1).map((r,ri)=>{
+    const x={},cell=i=>String(r[i]??"").trim();
+    fmap.forEach(({n,t,i})=>{if(i<0)return;const v=cell(i);
+      if(t==="number"){const m=v.replace(/[,，円¥￥]/g,"").match(/-?\d+(\.\d+)?/);x[n]=m?Number(m[0]):null}
+      else if(t==="month"){const m=v.match(/(\d{4})\D+(\d{1,2})/);x[n]=m?m[1]+"-"+String(m[2]).padStart(2,"0"):""}
+      else if(t==="select"){const o=opts(n);x[n]=o.includes(v)?v:o[0]}
+      else x[n]=n==="tip"||n==="no"?sharp(v):v});
+    if(ow>=0)x.owner=OWNERS.includes(cell(ow))?cell(ow):"本人";
+    x.status=x.status||"使用中";x.used=x.used||"新品";
+    const id=idc>=0?cell(idc):"";x.id=/^[\w\-.~:@+]{1,100}$/.test(id)?id:newId(k);x.o=Date.now()+ri;
+    return x}).filter(x=>x.name);
+}
+let pending=null;
+$("load").onclick=()=>{$("file").value="";$("file").click()};
+$("file").onchange=async()=>{
+  const fl=$("file").files[0];if(!fl)return;
+  const buf=await fl.arrayBuffer();const jobs=[],newCats=[];
+  if(/\.xlsx?$/i.test(fl.name)){
+    let X;try{X=await loadXLSX()}catch(err){toast(err.message,false);return}
+    const wb=X.read(buf,{type:"array"}),aoa=n=>X.utils.sheet_to_json(wb.Sheets[n],{header:1,raw:false,defval:""});
+    const conf={};if(wb.Sheets["分類の設定"])aoa("分類の設定").slice(1).forEach(r=>{if(r[0])conf[String(r[0]).trim()]={unit:r[1]||"個",extra:(()=>{try{return JSON.parse(r[2]||"[]")}catch(e){return []}})()}});
+    for(const sn of wb.SheetNames){if(sn==="分類の設定")continue;
+      const rows=aoa(sn).filter(r=>r.some(c=>String(c).trim()!==""));if(rows.length<1)continue;
+      let k=TABS.find(t=>sheetName(LABEL[t])===sn);
+      if(!k){ // 知らない分類は新しく作る
+        const base=["使う人","メーカー","商品名","品番・サイズ","購入年月","購入価格","新品・中古","状態","メモ","ID"].map(norm);
+        const cf=conf[sn]||{unit:"個",extra:rows[0].filter(c=>c&&!base.includes(norm(c))).map((c,i)=>({key:"f"+Date.now().toString(36)+i,label:String(c).trim(),type:rows.slice(1).every(r=>{const v=String(r[rows[0].indexOf(c)]??"").trim();return v===""||!isNaN(Number(v.replace(/,/g,"")))})?"number":"text"}))};
+        const id=Date.now().toString(36)+Math.random().toString(36).slice(2,5),c={id,key:"c_"+id,label:sn,unit:cf.unit,extra:cf.extra,o:Date.now()+newCats.length};
+        newCats.push(c);k=c.key;LABEL[k]=sn;UNIT[k]=c.unit;applyCats([...CATS,c]);
+      }
+      const items=itemsFrom(k,rows);if(items)jobs.push({k,items});
+    }
+  }else{
+    let text;try{text=new TextDecoder("utf-8",{fatal:true}).decode(buf)}catch(e){try{text=new TextDecoder("shift_jis").decode(buf)}catch(e2){text=new TextDecoder().decode(buf)}}
+    const rows=parseCSV(text);if(rows.length<2){toast("読み込める行がありません",false);return}
+    const items=itemsFrom(tab,rows);if(!items){toast(`「商品名」の列が見つかりません。${LABEL[tab]}のファイルか確認してください`,false);return}
+    jobs.push({k:tab,items});
+  }
+  if(!jobs.length){toast("読み込める表が見つかりませんでした",false);return}
+  pending={jobs,newCats};
+  $("iMsg").innerHTML=`「${esc(fl.name)}」から次の内容を読み込みます。<br>`+jobs.map(j=>`・${esc(LABEL[j.k])}：${j.items.length}${UNIT[j.k]}（いまの登録 ${(S[j.k]||[]).length}${UNIT[j.k]}）${newCats.some(c=>c.key===j.k)?" ※新しい分類":""}`).join("<br>");
+  $("iReplace").textContent="全部置き換える（ファイルにある分類は、今の登録を消してファイルの内容にします）";
+  $("dlgImp").showModal();
+};
+async function runImport(replace){
+  const {jobs,newCats}=pending;$("dlgImp").close();pending=null;
+  toast("読み込み中…",false);let n=0;
+  try{
+    for(const c of newCats)await putCat(c);
+    if(!useLocal)newCats.forEach(c=>watch(c.key));
+    for(const {k,items} of jobs){
+      S[k]=S[k]||[];
+      if(useLocal){S[k]=replace?items:[...S[k].filter(x=>!items.some(y=>y.id===x.id)),...items];saveLocal()}
+      else{
+        if(replace){const keep=new Set(items.map(x=>x.id));for(const x of S[k].slice())if(!keep.has(x.id))await remove(k,x.id)}
+        for(const x of items)await put(k,x);
+      }
+      n+=items.length;
+    }
+    renderTabs();setTab(TABS.includes(tab)?tab:"rods");
+    toast(`${jobs.map(j=>LABEL[j.k]).join("・")}を合わせて${n}件読み込みました`,false);
+  }catch(err){toast("読み込みの途中で止まりました："+(err.code||err.message),false)}
+}
+$("iCancel").onclick=()=>{const p=pending;$("dlgImp").close();pending=null;if(p&&p.newCats.length)applyCats(CATS.filter(c=>!p.newCats.includes(c)))};
+$("iMerge").onclick=()=>runImport(false);
+$("iReplace").onclick=()=>runImport(true);
+
+/* ===== Googleスプレッドシート同期 ===== */
+const SK=LS+".syncUrl",TK=LS+".t";
+let syncUrl=(()=>{try{return localStorage.getItem(SK)||""}catch(e){return ""}})();
+let syncPw=(()=>{try{return localStorage.getItem(SK+".pw")||""}catch(e){return ""}})();
+const PWNG="合言葉が違います。「同期」ボタンから、Code.gs に書いた合言葉を入れ直してください";
+let localStamp=(()=>{try{return Number(localStorage.getItem(TK)||0)}catch(e){return 0}})();
+let pushTimer=null,busy=false,lastSync="";
+function stampLocal(){localStamp=Date.now();try{localStorage.setItem(TK,String(localStamp))}catch(e){}}
+function syncMsg(m){lastSync=m;$("syncNote").textContent=m;if($("syncState"))$("syncState").textContent=m}
+function views(){const v={};TABS.forEach(k=>{v[LABEL[k]]=rowsOf(k)});return v}
+function schedulePush(){if(!syncUrl)return;clearTimeout(pushTimer);pushTimer=setTimeout(push,1500)}
+async function push(){
+  if(!syncUrl)return;if(busy){schedulePush();return}busy=true;syncMsg("同期中…");
+  try{const r=await fetch(syncUrl,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({pw:syncPw,t:localStamp,data:S,views:views()})});
+    const j=await r.json();busy=false;
+    if(j.error==="password"){syncMsg(PWNG);return}
+    if(j.ok)syncMsg("同期しました（"+new Date().toLocaleTimeString("ja-JP",{hour:"2-digit",minute:"2-digit"})+"）");
+    else await pull(true);
+  }catch(e){busy=false;syncMsg("同期できませんでした。通信状態を確認してください（この端末には保存済み）")}
+}
+function applyRemote(data,t){
+  Object.keys(S).forEach(k=>delete S[k]);Object.assign(S,{rods:[],tips:[],reels:[],cats:[]},data);
+  try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}
+  localStamp=t;try{localStorage.setItem(TK,String(t))}catch(e){}
+  applyCats(S.cats||[]);render();
+}
+async function pull(quiet){
+  if(!syncUrl)return;if(busy)return;busy=true;if(!quiet)syncMsg("同期中…");
+  try{const r=await fetch(syncUrl+(syncUrl.includes("?")?"&":"?")+"pw="+encodeURIComponent(syncPw)+"&t="+Date.now());const j=await r.json();busy=false;
+    if(j.error==="password"){syncMsg(PWNG);return}
+    if(j.data&&j.t>localStamp){applyRemote(j.data,j.t);syncMsg("ほかの端末の変更を取り込みました（"+new Date().toLocaleTimeString("ja-JP",{hour:"2-digit",minute:"2-digit"})+"）")}
+    else if(!j.data||localStamp>j.t)await push();
+    else syncMsg("同期しました（"+new Date().toLocaleTimeString("ja-JP",{hour:"2-digit",minute:"2-digit"})+"）");
+  }catch(e){busy=false;syncMsg("同期できませんでした。URLと通信状態を確認してください（この端末には保存済み）")}
+}
+$("syncPwShow").onchange=()=>{$("syncPw").type=$("syncPwShow").checked?"text":"password"};
+$("syncBtn").onclick=()=>{$("syncUrl").value=syncUrl;$("syncPw").value=syncPw;$("syncState").textContent=syncUrl?lastSync:"まだ同期していません";$("syncOff").hidden=!syncUrl;$("dlgSync").showModal()};
+$("syncClose").onclick=()=>$("dlgSync").close();
+$("syncOff").onclick=()=>{syncUrl="";syncPw="";try{localStorage.removeItem(SK);localStorage.removeItem(SK+".pw")}catch(e){}$("dlgSync").close();syncMsg("同期をやめました。データはこの端末に保存しています");$("syncBtn").classList.remove("on")};
+$("fs").addEventListener("submit",async e=>{e.preventDefault();
+  const u=$("syncUrl").value.trim();if(!/^https:\/\/script\.google\.com\/macros\/s\/[\w-]+\/exec$/.test(u)){$("syncState").textContent="URLの形が違います。「https://script.google.com/macros/s/…/exec」の形のURLを貼り付けてください";return}
+  const p=$("syncPw").value;if(!p){$("syncState").textContent="合言葉を入れてください";return}
+  syncUrl=u;syncPw=p;try{localStorage.setItem(SK,u);localStorage.setItem(SK+".pw",p)}catch(e){}$("syncBtn").classList.add("on");$("dlgSync").close();await pull(false)});
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")pull(true)});
+
+/* 起動 */
+renderTabs();render();
+(async()=>{
+  try{db=window.claude?await claude.use("db"):null}catch(e){db=null}
+  if(!db){useLocal=true;loadLocal();applyCats(S.cats||[]);render();if(syncUrl){$("syncBtn").classList.add("on");setTimeout(()=>pull(false),300);return}$("syncNote").textContent="データはこの端末に保存しています。別の端末へ移すときは「保存」したファイルを、移した先で「読み込み」してください。";return}
+  const timer=setTimeout(()=>{$("syncNote").textContent="データの読み込みに時間がかかっています…"},10000);
+  const subs={};
+  watch=k=>{if(subs[k])return;subs[k]=col(k).onSnapshot(snap=>{
+    if(!snap.metadata.fromCache){clearTimeout(timer);$("syncNote").textContent=""}
+    S[k]=snap.docs.map(d=>({id:d.id,...d.data()}));render();
+  },err=>{clearTimeout(timer);$("syncNote").textContent="データを読み込めませんでした（"+err.code+"）"})};
+  BUILTIN.forEach(watch);
+  col("cats").onSnapshot(snap=>{applyCats(snap.docs.map(d=>({id:d.id,key:"c_"+d.id,...d.data()})));CATS.forEach(c=>watch(c.key));render()},err=>{});
+})();
+}
+</script>
+<script>if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}</script>
+</body>
+</html>
