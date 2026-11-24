@@ -165,6 +165,13 @@ body.noprice .st-row{grid-template-columns:minmax(0,1fr) 5em}
 .item.own .cph{margin-left:-14px}
 .miss{opacity:.4}
 .phview{padding:10px;background:#000;max-width:96vw}.phview img{display:block;max-width:92vw;max-height:80vh;margin:0 auto 10px}.phview .btn{display:block;margin:0 auto}
+.btn.delall{border:2px solid #d23b2a;color:#d23b2a;background:var(--card)}
+.da-opts{display:grid;gap:8px;margin:10px 0}
+.da{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:center;border:1px solid var(--line);border-radius:10px;padding:10px 12px;cursor:pointer;font-size:15px}
+.da input{width:22px;height:22px;min-height:0;accent-color:#d23b2a}
+.da:has(input:checked){border-color:#d23b2a;background:light-dark(#fff1ef,#2e1210)}
+.da-tip{font-size:14px;background:light-dark(#fffbe6,#2b2508);border:1px solid #e0b400;border-radius:10px;padding:8px 10px}
+.btn.d.strong{background:#d23b2a;color:#fff;border-color:#d23b2a}.btn.d.strong:disabled{opacity:.45;cursor:not-allowed}
 .tw tr.off td{color:var(--sub);background:light-dark(#f1f3f4,#0a1d2a)}
 .vbar{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-start;justify-content:space-between}
 .vbar .seg{flex:1 1 220px}
@@ -291,7 +298,7 @@ dialog form{padding:18px}dialog h2{margin:0 0 12px;font-size:20px}
 </header>
 <main>
   <div id="vList">
-    <div class="vbar"><div class="seg" id="view" role="group" aria-label="表示方法"></div><div class="btns"><button class="btn" id="catEdit" hidden>分類の設定</button><button class="btn save" id="load">読み込み</button><button class="btn save" id="save">保存（全部まとめて）</button><button class="btn" id="syncBtn">同期</button><input type="file" id="file" accept=".xlsx,.csv,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" hidden></div></div>
+    <div class="vbar"><div class="seg" id="view" role="group" aria-label="表示方法"></div><div class="btns"><button class="btn" id="catEdit" hidden>分類の設定</button><button class="btn save" id="load">読み込み</button><button class="btn save" id="save">保存（全部まとめて）</button><button class="btn" id="syncBtn">同期</button><button class="btn delall" id="delAllBtn">全て削除</button><input type="file" id="file" accept=".xlsx,.csv,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" hidden></div></div>
     <textarea class="csvbox" id="csvOut" readonly hidden aria-label="書き出した内容"></textarea>
     <div class="tool">
       <input id="q" type="search" placeholder="商品名・メーカー・メモで検索" aria-label="検索">
@@ -369,6 +376,18 @@ dialog form{padding:18px}dialog h2{margin:0 0 12px;font-size:20px}
   <div class="frow" style="grid-template-columns:minmax(0,1fr) auto;margin-top:10px"><input id="ownNew" placeholder="例：祐介、妻、友人" aria-label="新しい使う人"><button type="submit" class="btn p">追加</button></div>
   <p class="note warn" id="ownMsg"></p>
   <div class="foot"><span></span><button type="button" class="btn" id="ownClose">閉じる</button></div>
+</form></dialog>
+<dialog id="dlgDelAll"><form id="fda" method="dialog" style="padding:18px">
+  <h2>全て削除</h2>
+  <p class="note">消す範囲を選んでください。用途・使う人・分類の設定は残ります。</p>
+  <div class="da-opts">
+    <label class="da"><input type="radio" name="daScope" value="tab" checked><span id="daTab"></span></label>
+    <label class="da"><input type="radio" name="daScope" value="all"><span id="daAll"></span></label>
+  </div>
+  <p class="da-tip">消す前に <button type="button" class="btn save" id="daSave">保存（全部まとめて）</button> で控えを取っておくと、「読み込み」で元に戻せます。</p>
+  <label style="font-size:14px;display:block;margin-top:10px">確認のため「<b>削除</b>」と入力してください<input id="daConfirm" autocomplete="off" placeholder="削除"></label>
+  <p class="note warn" id="daMsg"></p>
+  <div class="foot"><span></span><div class="btns"><button type="button" class="btn" id="daCancel">やめる</button><button type="submit" class="btn d strong" id="daGo" disabled>削除する</button></div></div>
 </form></dialog>
 <dialog id="dlgImp"><form method="dialog" style="padding:18px">
   <h2>読み込み</h2>
@@ -644,7 +663,27 @@ $("del").onclick=async()=>{
   lastDel={k,item};try{await remove(k,item.id);toast(`「${item.name}」を削除しました`,true)}catch(e){toast("削除できませんでした",false)}
 };
 let tT;function toast(m,undo){$("tMsg").textContent=m;$("tUndo").hidden=!undo;$("toast").style.display="flex";clearTimeout(tT);tT=setTimeout(()=>$("toast").style.display="none",undo?6000:2200)}
-$("tUndo").onclick=async()=>{if(!lastDel)return;$("toast").style.display="none";await put(lastDel.k,lastDel.item);lastDel=null};
+$("tUndo").onclick=async()=>{if(!lastDel)return;$("toast").style.display="none";const ld=lastDel;lastDel=null;
+  if(ld.many){toast("元に戻しています…",false);for(const [k,x] of ld.many)await put(k,x);toast(`${ld.many.length}件を元に戻しました`,false)}else await put(ld.k,ld.item)};
+/* 全て削除 */
+$("delAllBtn").onclick=()=>{const n=k=>(S[k]||[]).length,total=TABS.reduce((s,k)=>s+n(k),0);
+  $("daTab").innerHTML=`<b>${esc(LABEL[tab])}</b>だけ全部削除（${n(tab)}${esc(UNIT[tab])}）`;
+  $("daAll").innerHTML=`<b>すべての分類</b>を全部削除（${TABS.map(k=>esc(LABEL[k])).join("・")}　合計${total}件）`;
+  $("fda").querySelector('[value=tab]').checked=true;$("daConfirm").value="";$("daGo").disabled=true;$("daMsg").textContent="";$("dlgDelAll").showModal()};
+$("daConfirm").oninput=()=>{$("daGo").disabled=$("daConfirm").value.trim()!=="削除"};
+$("daCancel").onclick=()=>$("dlgDelAll").close();
+$("daSave").onclick=()=>saveAll();
+$("fda").addEventListener("submit",async e=>{e.preventDefault();if($("daConfirm").value.trim()!=="削除")return;
+  const all=$("fda").querySelector('[name=daScope]:checked').value==="all",ks=all?TABS.slice():[tab];
+  const many=ks.flatMap(k=>(S[k]||[]).map(x=>[k,x]));$("dlgDelAll").close();
+  if(!many.length){toast("削除するものがありません",false);return}
+  toast("削除中…",false);
+  try{
+    if(useLocal){ks.forEach(k=>{S[k]=[]});saveLocal();render()}
+    else for(const [k,x] of many)await remove(k,x.id);
+    lastDel={many};toast(`${all?"すべての分類":LABEL[tab]}の${many.length}件を削除しました`,true);
+  }catch(err){toast("削除の途中で止まりました："+(err.code||err.message),false)}
+});
 
 /* 画面操作 */
 function setTab(t){tab=t;maker="すべて";
