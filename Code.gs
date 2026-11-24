@@ -8,6 +8,7 @@
  *
  * 「同期データ」シート：アプリが使うデータ（触らないでください）
  * 「竿」「穂先」「リール」などのシート：確認用の一覧（同期のたびに書き直されます）
+ * 「写真」シート：道具の写真（触らないでください）
  */
 // ▼▼▼ ここに合言葉を書く（' ' の内側だけ書き換える）▼▼▼
 const PASSWORD = 'ここに合言葉';
@@ -40,6 +41,7 @@ function okPw_(pw) {
 
 function doGet(e) {
   if (!okPw_(e && e.parameter && e.parameter.pw)) return out_({ error: 'password' });
+  if (e.parameter.action === 'photo') return out_({ id: e.parameter.id, d: getPhoto_(e.parameter.id) });
   return out_(read_());
 }
 
@@ -49,6 +51,7 @@ function doPost(e) {
   try {
     const body = JSON.parse(e.postData.contents);
     if (!okPw_(body.pw)) return out_({ error: 'password' });
+    if (body.action === 'photoPut') { putPhoto_(String(body.id), String(body.d || '')); return out_({ ok: true }); }
     const cur = read_();
     // サーバーの方が新しければ上書きしない（アプリ側で取り込み直す）
     if (cur.t && Number(body.t) < cur.t) return out_({ ok: false, t: cur.t });
@@ -96,4 +99,35 @@ function writeViews_(views) {
 function out_(obj) {
   return ContentService.createTextOutput(JSON.stringify(obj))
     .setMimeType(ContentService.MimeType.JSON);
+}
+
+/* ===== 写真（1行に1枚。B列以降に分けて入れる） ===== */
+const PHOTO_SHEET = '写真';
+function photoSheet_() {
+  const ss = SpreadsheetApp.getActive();
+  return ss.getSheetByName(PHOTO_SHEET) || ss.insertSheet(PHOTO_SHEET);
+}
+function findPhotoRow_(sh, id) {
+  const last = sh.getLastRow();
+  if (last < 1) return 0;
+  const ids = sh.getRange(1, 1, last, 1).getValues();
+  for (let i = 0; i < ids.length; i++) if (String(ids[i][0]) === id) return i + 1;
+  return 0;
+}
+function getPhoto_(id) {
+  const sh = photoSheet_();
+  const row = findPhotoRow_(sh, String(id));
+  if (!row) return null;
+  const vals = sh.getRange(row, 2, 1, Math.max(1, sh.getLastColumn() - 1)).getValues()[0];
+  return vals.filter(function (v) { return v !== ''; }).map(function (v) { return String(v).slice(1); }).join('') || null;
+}
+function putPhoto_(id, d) {
+  if (!id || !d) return;
+  const sh = photoSheet_();
+  const chunks = [];
+  for (let i = 0; i < d.length; i += CHUNK) chunks.push('x' + d.slice(i, i + CHUNK));
+  let row = findPhotoRow_(sh, id);
+  if (!row) row = sh.getLastRow() + 1;
+  else sh.getRange(row, 2, 1, Math.max(1, sh.getLastColumn() - 1)).clearContent();
+  sh.getRange(row, 1, 1, chunks.length + 1).setValues([[id].concat(chunks)]);
 }

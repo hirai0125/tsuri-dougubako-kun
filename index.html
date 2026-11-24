@@ -43,7 +43,7 @@ h1{margin:0;font-size:clamp(26px,6vw,38px);line-height:1.05;font-weight:900;lett
 main{max-width:1100px;margin:0 auto;padding:16px max(4vw,12px) 110px}
 .tool{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
 input,select,textarea{font:16px "Zen Kaku Gothic New";color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 12px;min-height:44px;width:100%}
-.tool input{flex:1 1 200px;width:auto}.tool select{flex:0 1 170px;width:auto}
+.tool input{flex:1 1 200px;width:auto}.tool select{flex:0 1 280px;width:auto}
 :focus-visible{outline:3px solid var(--buoy);outline-offset:2px}
 .chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
 .chip{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:99px;padding:6px 14px;font:500 14px "Zen Kaku Gothic New";min-height:36px;cursor:pointer}
@@ -52,9 +52,9 @@ input,select,textarea{font:16px "Zen Kaku Gothic New";color:var(--ink);backgroun
 .item{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px 12px;cursor:pointer;text-align:left;color:inherit;font:inherit;width:100%;display:block}
 .item:hover{border-color:var(--sea2)}
 .item{position:relative;overflow:hidden}
-.item.own-m{border-left:8px solid #ee5a0f}.item.own-f{border-left:8px solid #13306e}
-.who{display:inline-block;font-size:14px;font-weight:900;color:#fff;border-radius:8px;padding:2px 12px;margin-bottom:4px;letter-spacing:.05em}
-.who.m{background:#ee5a0f;box-shadow:0 0 0 2px light-dark(#ffd2b8,#5a2408)}.who.f{background:#13306e;box-shadow:0 0 0 2px light-dark(#c9d5ee,#5b7bbd)}
+.item.own{border-left:8px solid color-mix(in srgb,var(--oc) 40%,transparent)}
+.who{--oc:#6b7280;background:var(--oc);display:inline-block;font-size:14px;font-weight:900;color:#fff;border-radius:8px;padding:2px 12px;margin-bottom:4px;letter-spacing:.05em}
+
 .item.off{background:repeating-linear-gradient(135deg,light-dark(#eef1f3,#0a1d2a) 0 10px,light-dark(#e4e8eb,#0e2433) 10px 20px);border-style:dashed;color:var(--sub)}
 .item.off .nm,.item.off .pr{color:var(--sub)}.item.off .meta{padding-right:84px}.item.off .nm .t{text-decoration:line-through;text-decoration-thickness:2px}
 .stamp{position:absolute;right:12px;bottom:10px;transform:rotate(-8deg);border:3px solid #d23b2a;color:#d23b2a;font-weight:900;font-size:18px;padding:0 10px;border-radius:6px;letter-spacing:.15em;background:light-dark(rgba(255,255,255,.7),rgba(6,23,36,.7))}
@@ -82,16 +82,106 @@ input,select,textarea{font:16px "Zen Kaku Gothic New";color:var(--ink);backgroun
 .tw td.nm{white-space:normal;min-width:10em}
 .tw .r{text-align:right;font-family:"Barlow Condensed","Zen Kaku Gothic New",sans-serif;font-weight:700;font-size:16px;font-variant-numeric:tabular-nums}
 .tw tr[data-id]{cursor:pointer}.tw tr[data-id]:hover td{background:light-dark(#f3f8fb,#123248)}
-.tw tr.own-m td:first-child{box-shadow:inset 6px 0 #ee5a0f}.tw tr.own-f td:first-child{box-shadow:inset 6px 0 #13306e}
-.tw .who{margin:0;font-size:13px;padding:1px 8px}
+.tw tr.own td:first-child{box-shadow:inset 5px 0 color-mix(in srgb,var(--oc) 40%,transparent)}
+.tw .who,.item .who,#ownList .who{margin:0;font-size:13px;padding:1px 9px;font-weight:700;background:color-mix(in srgb,var(--oc) 14%,var(--card));color:light-dark(var(--oc),color-mix(in srgb,var(--oc) 35%,#fff));border:1px solid color-mix(in srgb,var(--oc) 35%,transparent)}
 .tw tr.brk td{border-top:3px solid light-dark(#7a8f9c,#5d7a8e)}
+.tw th.op,.tw td.op{position:sticky;right:0;background:var(--card);box-shadow:-6px 0 8px -6px rgba(0,0,0,.25);text-align:center;white-space:nowrap}
+.tw th.op{background:light-dark(#e9f0f5,#0f2d42)}
+.opb{min-height:36px;min-width:52px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:700 14px "Zen Kaku Gothic New";cursor:pointer;margin:0 2px;padding:0 10px}
+.opb.ed{border-color:#0b3a5b;color:light-dark(#0b3a5b,#9fd0ee)}
+.opb.dl{border-color:#e8b3ab;color:#d23b2a}
+.opb.dl.arm{background:#d23b2a;color:#fff;border-color:#d23b2a}
+.tw tfoot td{padding:8px;border-top:2px solid var(--line)}
+.addrow{width:100%;min-height:46px;border:2px dashed #ee5a0f;background:light-dark(#fff4ec,#2a1508);color:light-dark(#c94a06,#ff9a5c);border-radius:10px;font:900 16px "Zen Kaku Gothic New";cursor:pointer}
+.gg{background:var(--card);border:1px solid var(--line);border-left:6px solid #2bb38a;border-radius:12px;padding:10px 14px;margin-bottom:12px}
+.gg[hidden]{display:none}
+.gg summary{font-weight:900;cursor:pointer;min-height:32px;display:flex;align-items:center}
+.gg-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:10px 18px;margin-top:8px}
+.gg h3{margin:0 0 6px;font-size:15px}
+.gg-row{display:flex;justify-content:space-between;gap:8px;padding:5px 10px;border-radius:8px;margin-bottom:4px;font-size:14px}
+.gg-row .num{font-size:17px}
+.g1{background:light-dark(#e7eef8,#16304d)}.g2{background:light-dark(#eef3ef,#173a2c)}.g3{background:light-dark(#fff0e4,#3a2412)}.g4{background:light-dark(#ffe0e0,#3d1717)}
+.gc{display:inline-block;font-size:13px;font-weight:900;border-radius:7px;padding:2px 10px;white-space:nowrap;color:#fff;vertical-align:1px;letter-spacing:.03em}
+.gc.g1{background:#2563c9}.gc.g2{background:#2e9d5b}.gc.g3{background:#ee5a0f}.gc.g4{background:#d23b2a}
+.gc.g1::before{content:"▼ "}.gc.g3::before{content:"▲ "}.gc.g4::before{content:"▲▲ "}
+.gg-row{border-left:8px solid transparent}.gg-row.g1{border-left-color:#2563c9}.gg-row.g2{border-left-color:#2e9d5b}.gg-row.g3{border-left-color:#ee5a0f}.gg-row.g4{border-left-color:#d23b2a}
+.stc{display:inline-block;font-size:13px;font-weight:900;border-radius:99px;padding:2px 11px;white-space:nowrap;vertical-align:1px}
+.stc.use{background:#2e9d5b;color:#fff}.stc.use::before{content:"● "}
+.stc.yobi{background:#ffd84d;color:#5a4300;border:1px solid #e0b400}.stc.yobi::before{content:"◆ "}
+.stc.haiki{background:#4b5560;color:#fff}.stc.haiki::before{content:"✕ "}
+.tw tr.yobi td{background:light-dark(#fffbe6,#2b2508)}
+.item .stc{font-size:12px}
+.purbar{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:10px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:6px 8px}
+.purbar[hidden]{display:none}
+.purbar .pl{font-weight:900;font-size:14px;color:var(--sub);padding:0 4px}
+.pb{--pc:#475569;border:2px solid var(--pc);background:var(--card);color:var(--ink);border-radius:99px;padding:4px 14px;min-height:40px;font:700 15px "Zen Kaku Gothic New";cursor:pointer}
+.pb[aria-pressed=true]{background:var(--pc);color:#fff}
+.pb[style]:not([aria-pressed=true]){box-shadow:inset 6px 0 0 var(--pc);padding-left:18px}
+.pb.un{border-style:dashed}.pb.edit{border:1px solid var(--line);color:var(--sub);font-size:13px;margin-left:auto}
+.pur{--pc:#6b7280;display:inline-block;font-size:13px;font-weight:900;color:#fff;background:var(--pc);border-radius:8px;padding:2px 10px;white-space:nowrap;vertical-align:1px}
+.pur.none{background:transparent;color:var(--sub);border:1px dashed var(--line);font-weight:500}
+.prow{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line)}
+.sect.ph{--pc:#6b7280;color:var(--pc);font-size:19px;font-weight:900;margin-top:10px}
+.sect.ph::before{content:"";width:16px;height:16px;border-radius:4px;background:var(--pc)}
+:root[data-theme=dark] .sect.ph{filter:brightness(1.6)}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]) .sect.ph{filter:brightness(1.6)}}
+.sect.ph.none{color:var(--sub)}.sect.ph.none::before{background:transparent;border:2px dashed var(--line)}
+.rodpick{border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+.rp-h{font-size:13px;color:var(--sub);margin-bottom:6px}
+.rp-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,220px),1fr));gap:4px;max-height:220px;overflow:auto}
+.rp{display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:8px;align-items:center;padding:6px 8px;border-radius:8px;background:light-dark(#f3f7fa,#0f2a3d);cursor:pointer;color:var(--ink);font-size:14px}
+.rp input{width:22px;height:22px;min-height:0;grid-row:span 2;accent-color:#ee5a0f}
+.rp small{color:var(--sub);font-size:12px}
+.rodfor{display:inline-block;font-size:13px;background:light-dark(#eef2f5,#123047);border:1px solid var(--line);border-radius:6px;padding:0 7px;margin:1px 0;white-space:nowrap}
+body.noprice .item .pr,body.noprice .stat.s-sum,body.noprice .subtotal .amt{display:none}
+body.noprice .st-row{grid-template-columns:minmax(0,1fr) 5em}
+.ptog{display:inline-flex;align-items:center;gap:10px;margin:0 0 14px;padding:6px 16px 6px 6px;min-height:50px;border-radius:99px;border:0;cursor:pointer;
+  background:#ffd84d;color:#3a2c00;font:900 17px "Zen Kaku Gothic New";box-shadow:0 3px 0 #c9a400,0 6px 14px rgba(0,0,0,.25);position:relative;z-index:1}
+.ptog .py{width:38px;height:38px;border-radius:50%;background:#3a2c00;color:#ffd84d;display:grid;place-items:center;font:900 20px "Barlow Condensed",sans-serif}
+.ptog .sw{width:52px;height:28px;border-radius:99px;background:#2e9d5b;position:relative;flex:none;transition:background .2s}
+.ptog .sw i{position:absolute;top:3px;left:27px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:left .2s}
+.ptog .ps{min-width:3.6em;text-align:left}
+.ptog[aria-checked=false]{background:#cfd6dc;color:#2b3640;box-shadow:0 3px 0 #9aa5ae,0 6px 14px rgba(0,0,0,.25)}
+.ptog[aria-checked=false] .py{background:#5b6d79;color:#e6eef3;text-decoration:line-through}
+.ptog[aria-checked=false] .sw{background:#8a96a0}.ptog[aria-checked=false] .sw i{left:3px}
+.ptog:active{transform:translateY(2px);box-shadow:0 1px 0 #c9a400}
+.newpur{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;background:light-dark(#f4f0ff,#1d1640);border:1px dashed #6b4fc4;border-radius:10px;padding:8px}
+.newpur[hidden]{display:none}
+.phbox{margin-top:12px;border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+.phlist{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px}
+.phi{position:relative;width:92px;height:92px;border-radius:10px;overflow:hidden;background:light-dark(#e9eef2,#0f2a3d)}
+.phi img{width:100%;height:100%;object-fit:cover;cursor:zoom-in;display:block}
+.phx{position:absolute;top:3px;right:3px;width:28px;height:28px;border-radius:50%;border:0;background:rgba(0,0,0,.6);color:#fff;font-size:16px;cursor:pointer}
+.phl{position:absolute;left:3px;bottom:3px;border:0;border-radius:6px;background:rgba(0,0,0,.55);color:#fff;font-size:12px;padding:2px 6px;cursor:pointer}
+.ph1{position:absolute;left:3px;bottom:3px;border-radius:6px;background:#ee5a0f;color:#fff;font-size:11px;font-weight:700;padding:1px 6px}
+.phadd{display:inline-flex;align-items:center;border:2px dashed #ee5a0f;color:light-dark(#c94a06,#ff9a5c);background:light-dark(#fff4ec,#2a1508)}
+.phadd[hidden]{display:none}
+.tt{position:relative;display:block;width:44px;height:44px;border-radius:8px;overflow:hidden;background:light-dark(#e9eef2,#0f2a3d)}
+.tt img{width:100%;height:100%;object-fit:cover;display:block}
+.tt b{position:absolute;right:2px;bottom:2px;background:rgba(0,0,0,.6);color:#fff;font-size:11px;border-radius:5px;padding:0 4px}
+.tt.none{background:transparent;color:var(--sub);text-align:center;line-height:44px}
+.cph{display:flex;gap:4px;margin:-12px -14px 10px;height:130px;overflow:hidden;border-radius:13px 13px 0 0;background:light-dark(#e9eef2,#0f2a3d)}
+.cph img{flex:1 1 0;min-width:0;height:100%;object-fit:cover}
+.item.own .cph{margin-left:-14px}
+.miss{opacity:.4}
+.phview{padding:10px;background:#000;max-width:96vw}.phview img{display:block;max-width:92vw;max-height:80vh;margin:0 auto 10px}.phview .btn{display:block;margin:0 auto}
 .tw tr.off td{color:var(--sub);background:light-dark(#f1f3f4,#0a1d2a)}
 .vbar{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-start;justify-content:space-between}
 .vbar .seg{flex:1 1 220px}
 .btn.save{background:#0b3a5b;border-color:#0b3a5b;color:#fff}
 .csvbox{font:13px/1.4 monospace;min-height:120px;margin-bottom:10px}
 .tabs{flex-wrap:wrap}.tabs button{flex:1 1 auto;min-width:72px}
-.tabs button.addcat{flex:0 0 auto;background:transparent;border:2px dashed #5d8fb3;color:#cfe2ee;border-bottom:0}
+.tabs{gap:6px;padding-top:6px}
+.tabs .tb{--tc:#8fb6d1;display:flex;align-items:center;justify-content:center;gap:8px;flex:1 1 130px;max-width:240px;min-height:60px;padding:8px 12px;
+  background:rgba(255,255,255,.1);color:#e6f1f8;border-top:5px solid var(--tc);border-radius:14px 14px 0 0;font:900 19px "Zen Kaku Gothic New";letter-spacing:.04em}
+.tabs .tb svg{width:26px;height:26px;flex:none;color:var(--tc)}
+.tabs .tb .tn{font:700 14px "Barlow Condensed","Zen Kaku Gothic New",sans-serif;background:rgba(255,255,255,.16);border-radius:99px;padding:1px 9px}
+.tabs .tb:hover{background:rgba(255,255,255,.18)}
+.tabs .tb[aria-selected=true]{background:var(--bg);color:var(--ink);font-size:21px;box-shadow:0 -4px 14px rgba(0,0,0,.25);border-top-width:7px}
+.tabs .tb[aria-selected=true] .tn{background:var(--tc);color:#fff}
+.tb-rods{--tc:#ee5a0f!important}.tb-tips{--tc:#1fa4d6!important}.tb-reels{--tc:#2bb38a!important}.tb-cus{--tc:#a98be0!important}
+@media(max-width:600px){.tabs .tb{flex:1 1 30%;min-height:54px;font-size:16px;padding:6px 6px;gap:5px;flex-wrap:wrap}.tabs .tb[aria-selected=true]{font-size:17px}.tabs .tb svg{width:20px;height:20px}.tabs .tb .tn{font-size:12px}}
+.tabs button.addcat{flex:0 0 auto;min-height:60px;border-radius:14px 14px 0 0;font:700 15px "Zen Kaku Gothic New";padding:0 14px;cursor:pointer;background:transparent;border:2px dashed #5d8fb3;color:#cfe2ee;border-bottom:0}
 .frow{display:grid;grid-template-columns:minmax(0,1fr) 7em 44px;gap:6px;margin-bottom:6px}
 .frow .x{min-height:44px;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;font-size:18px;cursor:pointer}
 .note.warn{color:#d23b2a}
@@ -117,7 +207,9 @@ input,select,textarea{font:16px "Zen Kaku Gothic New";color:var(--ink);backgroun
 .seg[hidden]{display:none}
 .seg button{flex:1;border:0;border-radius:9px;background:none;color:var(--ink);font:700 15px "Zen Kaku Gothic New";min-height:42px;cursor:pointer}
 .seg button[aria-pressed=true]{background:var(--sea);color:#fff}
-.seg button[data-k="本人"][aria-pressed=true]{background:#ee5a0f}.seg button[data-k="家族"][aria-pressed=true]{background:#13306e}
+#who button[style][aria-pressed=true]{background:var(--oc)}
+#who{max-width:none;flex-wrap:wrap}#who button[data-k]{flex:1 1 auto}
+#who .wedit{flex:0 0 auto;font-size:13px;color:var(--sub);font-weight:500;padding:0 10px}
 svg.rod{display:block;width:100%;height:22px;margin:8px 0 2px}
 .empty{padding:40px 16px;text-align:center;color:var(--sub);border:2px dashed var(--line);border-radius:14px}
 .fab{position:fixed;right:max(4vw,16px);bottom:22px;background:var(--buoy);color:#fff;border:0;border-radius:99px;padding:0 24px;height:56px;font:700 17px "Zen Kaku Gothic New";box-shadow:0 6px 18px rgba(0,0,0,.25);cursor:pointer;z-index:5}
@@ -144,6 +236,7 @@ dialog form{padding:18px}dialog h2{margin:0 0 12px;font-size:20px}
   <h1>釣り道具箱くん</h1>
   <p class="lead">竿・穂先・リールなど、手持ちの釣り道具の台帳</p>
   <div class="stats" id="stats"></div>
+  <button type="button" class="ptog" id="priceBtn" role="switch" aria-checked="true"><span class="py">¥</span><span class="pt">価格</span><span class="sw" aria-hidden="true"><i></i></span><span class="ps">表示中</span></button>
   </div>
   <svg class="hero" viewBox="0 0 320 180" role="img" aria-label="竿を差した釣り道具箱くんのイラスト">
     <defs>
@@ -198,17 +291,34 @@ dialog form{padding:18px}dialog h2{margin:0 0 12px;font-size:20px}
 </header>
 <main>
   <div id="vList">
-    <div class="vbar"><div class="seg" id="view" role="group" aria-label="表示方法"></div><div class="btns"><button class="btn" id="catEdit" hidden>分類の設定</button><button class="btn" id="syncBtn">同期</button><button class="btn save" id="load">読み込み</button><button class="btn save" id="save">保存（全部まとめて）</button><input type="file" id="file" accept=".xlsx,.csv,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" hidden></div></div>
+    <div class="vbar"><div class="seg" id="view" role="group" aria-label="表示方法"></div><div class="btns"><button class="btn" id="catEdit" hidden>分類の設定</button><button class="btn save" id="load">読み込み</button><button class="btn save" id="save">保存（全部まとめて）</button><button class="btn" id="syncBtn">同期</button><input type="file" id="file" accept=".xlsx,.csv,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" hidden></div></div>
     <textarea class="csvbox" id="csvOut" readonly hidden aria-label="書き出した内容"></textarea>
     <div class="tool">
       <input id="q" type="search" placeholder="商品名・メーカー・メモで検索" aria-label="検索">
       <select id="sort" aria-label="並び順">
-        <option value="def-a" selected>いつもの順（本人用→メーカー順）</option><option value="date-d">購入日が新しい順</option><option value="date-a">購入日が古い順</option>
+        <option value="def-a" selected>いつもの順（本人用→メーカー順）</option><option value="pur-a">用途別</option><option value="date-d">購入日が新しい順</option><option value="date-a">購入日が古い順</option>
         <option value="price-d">価格が高い順</option><option value="len-d">長い順</option><option value="len-a">短い順</option>
         <option value="wt-a">軽い順</option><option value="maker">メーカー順</option>
       </select>
     </div>
+    <div class="purbar" id="purp" role="group" aria-label="用途"></div>
     <div class="seg" id="who" role="group" aria-label="使う人"></div>
+    <details class="gg" id="gearGuide" open hidden>
+      <summary>ギア比の区分の目安（ハイギア・ローギアなど）</summary>
+      <div class="gg-grid">
+        <div><h3><span class="kind bt">ベイト</span></h3>
+          <div class="gg-row g1"><span class="gc g1">ローギア（パワーギア）</span><span class="num">〜5.4</span></div>
+          <div class="gg-row g2"><span class="gc g2">ノーマルギア</span><span class="num">5.5〜6.4</span></div>
+          <div class="gg-row g3"><span class="gc g3">ハイギア</span><span class="num">6.5〜7.4</span></div>
+          <div class="gg-row g4"><span class="gc g4">エクストラハイギア</span><span class="num">7.5〜</span></div></div>
+        <div><h3><span class="kind sp">スピニング</span></h3>
+          <div class="gg-row g1"><span class="gc g1">ローギア（パワーギア）</span><span class="num">〜4.9</span></div>
+          <div class="gg-row g2"><span class="gc g2">ノーマルギア</span><span class="num">5.0〜5.7</span></div>
+          <div class="gg-row g3"><span class="gc g3">ハイギア</span><span class="num">5.8〜6.1</span></div>
+          <div class="gg-row g4"><span class="gc g4">エクストラハイギア</span><span class="num">6.2〜</span></div></div>
+      </div>
+      <p class="note">メーカーや機種で多少違います。ベイトは「5前後がロー、6前後がノーマル、7前後がハイ、8前後がエクストラハイ」と言われるのを区切りにしたものです。品名の PG はパワーギア、HG はハイギア、XG・XH はエクストラハイギアの意味です。</p>
+    </details>
     <div class="chips" id="chips"></div>
     <div class="list" id="list"></div>
     <div class="subtotal" id="sub"></div>
@@ -220,6 +330,10 @@ dialog form{padding:18px}dialog h2{margin:0 0 12px;font-size:20px}
 <dialog id="dlg"><form id="f" method="dialog">
   <h2 id="dTitle">竿を追加</h2>
   <div class="grid" id="fields"></div>
+  <div class="phbox"><div class="rp-h">写真<span class="note" style="margin:0">（4枚まで。スマホではその場で撮影もできます）</span></div>
+    <div class="phlist" id="phList"></div>
+    <label class="btn phadd" id="phAddBtn">＋ 写真を追加<input type="file" id="phFile" accept="image/*" multiple hidden></label>
+  </div>
   <div class="foot">
     <div class="btns"><button type="button" class="btn d" id="del">削除</button><button type="button" class="btn" id="dup">複製</button></div>
     <div class="btns"><button type="button" class="btn" id="cancel">閉じる</button><button type="submit" class="btn p">保存</button></div>
@@ -240,6 +354,22 @@ dialog form{padding:18px}dialog h2{margin:0 0 12px;font-size:20px}
     <div class="btns"><button type="button" class="btn" id="cCancel">閉じる</button><button type="submit" class="btn p">保存</button></div>
   </div>
 </form></dialog>
+<dialog id="dlgPur"><form id="fp" method="dialog" style="padding:18px">
+  <h2>用途の追加・削除</h2>
+  <p class="note">すべての分類で共通の用途です。上の行ほど先に並びます。</p>
+  <div id="purList"></div>
+  <div class="frow" style="grid-template-columns:minmax(0,1fr) auto;margin-top:10px"><input id="purNew" placeholder="例：タイラバ用、サビキ用、船釣り用" aria-label="新しい用途"><button type="submit" class="btn p">追加</button></div>
+  <p class="note warn" id="purMsg"></p>
+  <div class="foot"><span></span><button type="button" class="btn" id="purClose">閉じる</button></div>
+</form></dialog>
+<dialog id="dlgOwn"><form id="fo" method="dialog" style="padding:18px">
+  <h2>使う人の追加・削除</h2>
+  <p class="note">竿・リールなどで共通です。上の行ほど先に並び、色もこの順で付きます（1番目オレンジ、2番目紺…）。</p>
+  <div id="ownList"></div>
+  <div class="frow" style="grid-template-columns:minmax(0,1fr) auto;margin-top:10px"><input id="ownNew" placeholder="例：祐介、妻、友人" aria-label="新しい使う人"><button type="submit" class="btn p">追加</button></div>
+  <p class="note warn" id="ownMsg"></p>
+  <div class="foot"><span></span><button type="button" class="btn" id="ownClose">閉じる</button></div>
+</form></dialog>
 <dialog id="dlgImp"><form method="dialog" style="padding:18px">
   <h2>読み込み</h2>
   <p id="iMsg"></p>
@@ -250,6 +380,7 @@ dialog form{padding:18px}dialog h2{margin:0 0 12px;font-size:20px}
   </div>
   <p class="note">「追加・更新する」：このアプリで保存したファイルなら同じ道具は上書きし、ほかは追加します。<br>「全部置き換える」：ファイルにある分類について、今の登録を消してファイルの内容にします。</p>
 </form></dialog>
+<dialog id="dlgPh" class="phview"><img id="phBig" alt="写真"><button type="button" class="btn" id="phClose">閉じる</button></dialog>
 <dialog id="dlgSync"><form id="fs" method="dialog" style="padding:18px">
   <h2>スマホとパソコンの同期</h2>
   <p class="note">Googleスプレッドシートを使って、どの端末でも同じデータにします。スプレッドシートの準備で作った「ウェブアプリのURL」と、Code.gs に書いた「合言葉」を入れてください。</p>
@@ -267,23 +398,41 @@ dialog form{padding:18px}dialog h2{margin:0 0 12px;font-size:20px}
 <script>
 {
 const FIELDS={
-  rods:[["maker","メーカー","text"],["name","商品名","text","w"],["model","号数・品番","text"],["len","長さ（cm）","number"],
+  rods:[["purpose","用途","purpose"],["maker","メーカー","text"],["name","商品名","text","w"],["model","号数・品番","text"],["len","長さ（cm）","number"],
         ["wt","自重（g）","number"],["date","購入年月","month"],["price","購入価格（円）","number"],["used","新品・中古","select"],["tip","穂先（番手）","text"],
         ["owner","使う人","select"],["status","状態","select"],["memo","メモ","textarea","w"]],
-  tips:[["name","商品名","text","w"],["no","番手","text"],["len","長さ（cm）","number"],["date","購入年月","month"],
+  tips:[["purpose","用途","purpose"],["rodIds","対応する竿","rods","w"],["name","商品名","text","w"],["no","番手","text"],["len","長さ（cm）","number"],["date","購入年月","month"],
         ["price","購入価格（円）","number"],["used","新品・中古","select"],["status","状態","select"],["memo","メモ（合う竿など）","textarea","w"]],
-  reels:[["type","種類","select"],["maker","メーカー","text"],["name","商品名","text","w"],["gear","ギア比","number","","0.1"],
+  reels:[["purpose","用途","purpose"],["type","種類","select"],["maker","メーカー","text"],["name","商品名","text","w"],["gear","ギア比","number","","0.1"],
         ["drag","最大ドラグ力（kg）","number"],["reel","巻上長（cm/回転）","number"],["color","色","text"],["date","購入年月","month"],
         ["price","購入価格（円）","number"],["used","新品・中古","select"],["owner","使う人","select"],["status","状態","select"],["memo","メモ（付けている竿・糸など）","textarea","w"]]
 };
-const STATUS=["使用中","予備","引退","廃棄"],OWNERS=["本人","家族"];
+const STATUS=["使用中","予備","廃棄"];
+let OWNERS=["本人","家族"];
+const OCOL=["#ee5a0f","#13306e","#0f766e","#9d174d","#4d7c0f","#6d28d9","#b45309","#0369a1"];
+const ocol=o=>{const i=OWNERS.indexOf(o);return i<0?"#6b7280":OCOL[i%OCOL.length]};
+const DEF_PUR=["海上釣堀用","イカ用"];
+const DEF_CATS=[
+  {id:"uki",key:"c_uki",label:"ウキ",unit:"個",o:1,extra:[{key:"f_gou",label:"号数（負荷）",type:"text"},{key:"f_len",label:"長さ（cm）",type:"number"},{key:"f_color",label:"色",type:"text"},{key:"f_qty",label:"数量（個）",type:"number"}]},
+  {id:"hari",key:"c_hari",label:"針",unit:"袋",o:2,extra:[{key:"f_kind",label:"種類（チヌ・真鯛など）",type:"text"},{key:"f_gou",label:"号数",type:"text"},{key:"f_iri",label:"入数（本）",type:"number"},{key:"f_qty",label:"数量（袋）",type:"number"}]}];
+let PUR=[...DEF_PUR],pur="すべて";
+const hasPur=k=>!!k;
+const PCOL=["#0e7490","#7c3aed","#db2777","#a16207","#4f46e5","#15803d","#be123c","#0369a1","#9333ea","#c2410c"];
+const pcol=p=>{const i=PUR.indexOf(p);return i<0?"#6b7280":PCOL[i%PCOL.length]};
+const rodLabel=r=>`${r.name||""}${r.model?" "+r.model:""}`;
+const rodNames=x=>(Array.isArray(x.rodIds)?x.rodIds:[]).map(id=>S.rods.find(r=>r.id===id)).filter(Boolean).map(rodLabel);
+const rodsCell=x=>{const n=rodNames(x);return n.length?n.map(s=>`<span class="rodfor">${esc(s)}</span>`).join(" "):"—"};
+const purRank=x=>{if(!x.purpose)return 9999;const i=PUR.indexOf(x.purpose);return i<0?999:i};
+const purTag=x=>!hasPur(tab)?"":x.purpose?`<span class="pur" style="--pc:${pcol(x.purpose)}">${esc(x.purpose)}</span>`:'<span class="pur none">用途なし</span>';
 const gone=x=>x.status==="引退"||x.status==="廃棄";
-const stamp=x=>gone(x)?`<span class="stamp${x.status==="廃棄"?" haiki":""}">${x.status}</span>`:"";
+const stamp=x=>gone(x)?`<span class="stamp haiki">廃棄</span>`:"";
+const stOf=x=>x.status==="予備"?"予備":gone(x)?"廃棄":"使用中";
+const stTag=x=>{const s=stOf(x);return `<span class="stc ${s==="予備"?"yobi":s==="廃棄"?"haiki":"use"}">${s}</span>`};
 const OPTS={status:STATUS,owner:OWNERS,used:["新品","中古"],type:["ベイト","スピニング"]};
 const usedTag=x=>x.used==="中古"?'<span class="used">中古</span>':"";
-const own=x=>x.owner||"本人";
+const own=x=>x.owner||OWNERS[0]||"本人";
 const MK=["ダイワ","シマノ","大郷屋","プロマリン","宇崎日新","プロトラスト"],mr=v=>{const i=MK.indexOf(v||"");return i<0?99:i};
-const opts=k=>OPTS[k];
+const opts=k=>k==="owner"?OWNERS:OPTS[k];
 const $=id=>document.getElementById(id);
 const S={rods:[],tips:[],reels:[]};
 const LABEL={rods:"竿",tips:"穂先",reels:"リール"},UNIT={rods:"本",tips:"本",reels:"台"};
@@ -297,20 +446,26 @@ function applyCats(list){
   CATS.forEach(c=>{
     LABEL[c.key]=c.label;UNIT[c.key]=c.unit||"個";S[c.key]=S[c.key]||[];
     const ex=(c.extra||[]).map(f=>[f.key,f.label,f.type==="number"?"number":"text"]);
-    FIELDS[c.key]=[["maker","メーカー","text"],["name","商品名","text","w"],["model","品番・サイズ","text"],...ex,
+    FIELDS[c.key]=[["purpose","用途","purpose"],["maker","メーカー","text"],["name","商品名","text","w"],["model","品番・サイズ","text"],...ex,
       ["date","購入年月","month"],["price","購入価格（円）","number"],["used","新品・中古","select"],["owner","使う人","select"],["status","状態","select"],["memo","メモ","textarea","w"]];
-    COLS[c.key]=[["使う人",x=>`<span class="who ${own(x)==="家族"?"f":"m"}">${own(x)}</span>`],["メーカー",x=>esc(x.maker)],["商品名",x=>`<b>${esc(x.name)}</b>`,"nm"],["品番",x=>esc(x.model)],
-      ...(c.extra||[]).map(f=>[f.label,x=>f.type==="number"?num(x[f.key]):esc(x[f.key])||"—",f.type==="number"?"r":""]),
-      ["購入",x=>ym(x.date)],["価格",x=>yen(x.price),"r"],["新/中",x=>x.used==="中古"?'<span class="used">中古</span>':"新品"],["状態",x=>esc(x.status||"使用中")]];
+    COLS[c.key]=[["用途",x=>purTag(x)],["使う人",x=>`<span class="who" style="--oc:${ocol(own(x))}">${esc(own(x))}</span>`],["メーカー",x=>esc(x.maker)],["商品名",x=>`<b>${esc(x.name)}</b>`,"nm"],["品番",x=>esc(x.model)],
+      ...(c.extra||[]).map(f=>[f.label.replace(/（.*?）/g,""),x=>f.type==="number"?num(x[f.key]):esc(x[f.key])||"—",f.type==="number"?"r":""]),
+      ["購入",x=>ym(x.date)],["価格",x=>yen(x.price),"r"],["新/中",x=>x.used==="中古"?'<span class="used">中古</span>':"新品"],["状態",x=>stTag(x)]];
   });
   if(!TABS.includes(tab))tab="rods";
   renderTabs();
 }
 function renderTabs(){
-  $("tabs").innerHTML=TABS.map(k=>`<button role="tab" data-k="${k}" aria-selected="${k===tab}">${esc(LABEL[k])}</button>`).join("")+
+  const ic={rods:'<path d="M4 26 L28 4" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="M22 9.5 L28 4" stroke="#ff6a1a" stroke-width="3" stroke-linecap="round"/><rect x="3" y="21" width="6" height="7" rx="2" fill="currentColor" transform="rotate(-42 6 24.5)"/>',
+    tips:'<path d="M6 26 L26 6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M17 15 L26 6" stroke="#ff6a1a" stroke-width="3" stroke-linecap="round"/>',
+    reels:'<circle cx="14" cy="17" r="9" fill="none" stroke="currentColor" stroke-width="3"/><circle cx="14" cy="17" r="3" fill="currentColor"/><path d="M14 17 L25 9" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><circle cx="26" cy="8" r="3" fill="#ff6a1a"/>'};
+  $("tabs").innerHTML=TABS.map(k=>{const n=(S[k]||[]).filter(x=>!gone(x)).length;
+    return `<button role="tab" class="tb tb-${BUILTIN.includes(k)?k:"cus"}" data-k="${k}" aria-selected="${k===tab}"><svg viewBox="0 0 30 30" aria-hidden="true">${ic[k]||'<rect x="4" y="10" width="22" height="15" rx="3" fill="none" stroke="currentColor" stroke-width="3"/><path d="M10 10 V6 H20 V10" fill="none" stroke="currentColor" stroke-width="3"/>'}</svg><span class="tl">${esc(LABEL[k])}</span><span class="tn">${n}${esc(UNIT[k])}</span></button>`}).join("")+
     `<button class="addcat" id="addCat" title="分類を追加">＋ 分類</button>`;
 }
 let watch=()=>{};
+let hidePrice=(()=>{try{return localStorage.getItem("tsuriHidePrice")==="1"}catch(e){return false}})();
+function applyPrice(){document.body.classList.toggle("noprice",hidePrice);const b=$("priceBtn");if(b){b.setAttribute("aria-checked",String(!hidePrice));b.querySelector(".ps").textContent=hidePrice?"非表示":"表示中";b.title=hidePrice?"押すと価格を表示します":"押すと価格を隠します"}}
 let view=(()=>{try{return localStorage.getItem("saoView2")||"table"}catch(e){return "table"}})(),tab="rods",maker="すべて",who="すべて",editing=null,lastDel=null,db=null,useLocal=false;
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const yen=n=>n?"¥"+Number(n).toLocaleString("ja-JP"):"—";
@@ -321,7 +476,7 @@ const sharp=s=>String(s||"").replace(/[#＃]/g,"♯");
 const LS="tsuriDouguBako.v1";
 const SEED={"rods":[{"id":"r01","date":"2023-10","len":350,"maker":"ダイワ","memo":"","model":"S-350V","name":"シーパラダイス","o":1,"owner":"本人","price":6000,"status":"使用中","tip":"♯7","used":"中古","wt":150},{"id":"r02","date":"2020-11","len":350,"maker":"ダイワ","memo":"","model":"S-350V","name":"18シーパラダイス","o":2,"owner":"本人","price":12000,"status":"使用中","tip":"","used":"新品","wt":150},{"id":"r03","date":"2025-07","len":400,"maker":"ダイワ","memo":"","model":"S-400V","name":"シーパラダイス","o":3,"owner":"本人","price":7600,"status":"使用中","tip":"","used":"中古","wt":175},{"id":"r04","date":"2022-05","len":350,"maker":"ダイワ","memo":"","model":"H-350E","name":"17シーパラダイス","o":4,"price":13000,"status":"使用中","tip":"","wt":230},{"id":"r05","date":"2025-01","len":250,"maker":"シマノ","memo":"","model":"250","name":"シーマークベイトさぐり","o":5,"owner":"本人","price":12000,"status":"使用中","tip":"","used":"中古","wt":144},{"id":"r06","date":"2022-08","len":360,"maker":"プロトラスト","memo":"","model":"360","name":"海上釣堀ブルーバトル","o":6,"owner":"家族","price":4400,"status":"使用中","tip":"","wt":453},{"id":"r07","date":"2023-11","len":340,"maker":"大郷屋","memo":"","model":"340","name":"脈釣王 ZOOM EX","o":7,"owner":"本人","price":15000,"status":"使用中","tip":"♯6","used":"中古","wt":194},{"id":"r08","date":"2026-05","len":450,"maker":"大郷屋","memo":"","model":"450","name":"脈釣王 ZOOM","o":8,"owner":"本人","price":6700,"status":"使用中","tip":"♯6","used":"中古","wt":270},{"id":"r09","date":"2018-05","len":180,"maker":"宇崎日新","memo":"","model":"180","name":"スーパースクエアRX海上釣堀","o":9,"owner":"家族","price":5300,"status":"使用中","tip":"","used":"中古","wt":105},{"id":"r10","date":"2021-07","len":300,"maker":"プロマリン","memo":"","model":"300H","name":"CBグランペイ海上釣堀","o":10,"owner":"家族","price":3500,"status":"使用中","tip":"","wt":213},{"id":"r11","date":"2021-07","len":300,"maker":"プロマリン","memo":"","model":"300H","name":"CBグランペイ海上釣堀","o":11,"owner":"家族","price":3500,"status":"使用中","tip":"","wt":213},{"id":"r12","date":"2024-08","len":360,"maker":"プロマリン","memo":"","model":"360H","name":"CBグラディア海上釣堀","o":12,"price":4300,"status":"使用中","tip":"","wt":238}],"tips":[{"id":"t01","date":"2026-04","len":null,"memo":"","name":"高感度脈釣穂先","no":"♯7","o":1,"price":5980,"status":"使用中"},{"id":"t02","date":"2025-11","len":null,"memo":"","name":"高感度脈釣穂先","no":"♯7","o":2,"price":5681,"status":"使用中"},{"id":"t03","date":"2025-05","len":null,"memo":"","name":"高感度脈釣穂先","no":"♯7","o":3,"price":5681,"status":"廃棄","used":"新品"},{"id":"t04","date":"2024-05","len":null,"memo":"","name":"高感度繊細脈釣穂先","no":"♯7","o":4,"price":6100,"status":"廃棄","used":"新品"},{"id":"t05","date":"2022-07","len":null,"memo":"","name":"高感度脈釣穂先","no":"♯7","o":5,"price":5500,"status":"廃棄","used":"新品"}],"reels":[{"id":"l01","color":"","date":"2018-05","drag":4,"gear":6.3,"maker":"ダイワ","memo":"","name":"ICV200H","o":1,"owner":"本人","price":10500,"reel":71,"status":"使用中","type":"ベイト","used":"新品"},{"id":"l02","color":"黒","date":"2025-12","drag":4,"gear":6.3,"maker":"ダイワ","memo":"","name":"ICV200H","o":2,"owner":"本人","price":7200,"reel":71,"status":"使用中","type":"ベイト","used":"中古"},{"id":"l03","color":"","date":"2026-05","drag":4,"gear":6.3,"maker":"ダイワ","memo":"","name":"ライトゲームICV 150H","o":3,"owner":"本人","price":6700,"reel":71,"status":"使用中","type":"ベイト","used":"中古"},{"id":"l04","color":"金","date":"2025-12","drag":4,"gear":6.3,"maker":"ダイワ","memo":"","name":"ICV150 R","o":4,"owner":"本人","price":5200,"reel":71,"status":"使用中","type":"ベイト","used":"中古"},{"id":"l05","color":"赤","date":"2025-12","drag":4,"gear":6.3,"maker":"ダイワ","memo":"","name":"ICV150 RW","o":5,"owner":"本人","price":4300,"reel":71,"status":"使用中","type":"ベイト","used":"中古"},{"id":"l06","color":"","date":"2021-09","drag":5,"gear":7,"maker":"シマノ","memo":"","name":"17バルケッタBB300HGDH","o":6,"owner":"本人","price":25000,"reel":70,"status":"使用中","type":"ベイト","used":"新品"},{"id":"l07","color":"","date":"2025-07","drag":5,"gear":5.8,"maker":"シマノ","memo":"","name":"21バルケッタBB150DH-PG","o":7,"owner":"本人","price":14000,"reel":58,"status":"使用中","type":"ベイト","used":"新品"},{"id":"l08","color":"","date":"2015-04","drag":3,"gear":5.2,"maker":"シマノ","memo":"","name":"アリビオ2500","o":8,"owner":"本人","price":2800,"reel":73,"status":"使用中","type":"スピニング","used":"新品"},{"id":"l09","color":"","date":"2016-08","drag":3,"gear":5.2,"maker":"シマノ","memo":"","name":"アリビオ2500","o":9,"owner":"本人","price":2700,"reel":73,"status":"使用中","type":"スピニング","used":"新品"},{"id":"l10","color":"","date":"2017-09","drag":3,"gear":5.2,"maker":"シマノ","memo":"","name":"アリビオ2500","o":10,"owner":"本人","price":3100,"reel":73,"status":"使用中","type":"スピニング","used":"新品"},{"id":"l11","color":"","date":"2019-04","drag":2,"gear":5.3,"maker":"ダイワ","memo":"","name":"16ジョイナス2000","o":11,"owner":"本人","price":2100,"reel":72,"status":"使用中","type":"スピニング","used":"新品"},{"id":"l12","color":"","date":"2019-04","drag":2,"gear":5.3,"maker":"ダイワ","memo":"","name":"16ジョイナス2000","o":12,"owner":"本人","price":2100,"reel":72,"status":"使用中","type":"スピニング","used":"新品"},{"id":"l13","color":"","date":"2021-07","drag":8.5,"gear":5.2,"maker":"シマノ","memo":"","name":"19シエナ4000","o":13,"owner":"本人","price":3700,"reel":82,"status":"使用中","type":"スピニング","used":"新品"},{"id":"l14","color":"","date":"2022-08","drag":8.5,"gear":5.2,"maker":"シマノ","memo":"","name":"19シエナ4000","o":14,"owner":"本人","price":3700,"reel":82,"status":"使用中","type":"スピニング","used":"新品"},{"id":"l15","color":"","date":"2024-11","drag":11,"gear":4.7,"maker":"シマノ","memo":"","name":"21ナスキー 4000","o":15,"owner":"本人","price":10300,"reel":75,"status":"使用中","type":"スピニング","used":"新品"},{"id":"l16","color":"","date":"2024-11","drag":12,"gear":6.2,"maker":"ダイワ","memo":"","name":"24レブロス LT5000-CXH","o":16,"owner":"本人","price":9100,"reel":105,"status":"使用中","type":"スピニング","used":"新品"}],"cats":[]};
 function saveLocal(){try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}stampLocal();schedulePush()}
-function loadLocal(){let j=null;try{j=JSON.parse(localStorage.getItem(LS)||"null")}catch(e){}if(!j){j=JSON.parse(JSON.stringify(SEED));try{localStorage.setItem(LS,JSON.stringify(j))}catch(e){}}Object.assign(S,j);S.cats=j.cats||[]}
+function loadLocal(){let j=null;try{j=JSON.parse(localStorage.getItem(LS)||"null")}catch(e){}if(!j){j=JSON.parse(JSON.stringify(SEED));try{localStorage.setItem(LS,JSON.stringify(j))}catch(e){}}Object.assign(S,j);S.cats=j.cats||[];if(migratePur()){try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}}}
 const col=k=>db.collection("data/tackle/"+k);
 async function put(k,item){
   if(useLocal){const a=S[k],i=a.findIndex(x=>x.id===item.id);i<0?a.push(item):a[i]=item;saveLocal();render();return}
@@ -342,12 +497,16 @@ function rodSvg(len,kind){
 }
 function filtered(){
   const q=$("q").value.trim().toLowerCase();
-  let a=S[tab].filter(x=>(tab==="tips"||who==="すべて"||own(x)===who)&&(maker==="すべて"||(tab==="rods"||isCustom(tab)?x.maker===maker:tab==="reels"?(x.type===maker||x.maker===maker):x.status===maker))&&
+  let a=S[tab].filter(x=>(!hasPur(tab)||pur==="すべて"||(pur==="未設定"?!x.purpose:x.purpose===pur))&&(tab==="tips"||who==="すべて"||own(x)===who)&&(maker==="すべて"||(tab==="rods"||isCustom(tab)?x.maker===maker:tab==="reels"?(x.type===maker||x.maker===maker):x.status===maker))&&
     (!q||Object.values(x).join(" ").toLowerCase().includes(q)));
   const [k,d]=$("sort").value.split("-"),m=d==="d"?-1:1;
   const byMaker=(x,y)=>mr(x.maker)-mr(y.maker)||String(x.maker||"").localeCompare(y.maker||"","ja");
   const byDate=(x,y)=>String(y.date||"").localeCompare(x.date||"");
-  a.sort((x,y)=>k==="def"?(tab==="tips"?byDate(x,y):(own(x)==="本人"?0:1)-(own(y)==="本人"?0:1)||byMaker(x,y)||String(x.name||"").localeCompare(y.name||"","ja")||byDate(x,y)):
+  const orank=x=>{const i=OWNERS.indexOf(own(x));return i<0?99:i};
+  const defCmp=(x,y)=>tab==="tips"?byDate(x,y):orank(x)-orank(y)||byMaker(x,y)||String(x.name||"").localeCompare(y.name||"","ja")||byDate(x,y);
+  const tr=x=>x.type==="ベイト"?0:x.type==="スピニング"?1:2;
+  a.sort((x,y)=>k==="def"?defCmp(x,y):
+    k==="pur"?purRank(x)-purRank(y)||String(x.purpose||"").localeCompare(y.purpose||"","ja")||(tab==="reels"?tr(x)-tr(y):0)||defCmp(x,y):
     k==="maker"?byMaker(x,y)||byDate(x,y):
     k==="date"?m*String(x.date||"").localeCompare(y.date||""):m*((Number(x[k])||0)-(Number(y[k])||0)));
   return a;
@@ -356,93 +515,123 @@ function card(x){
   const st=(x.status&&x.status!=="使用中"?` <span class="tag g">${esc(x.status)}</span>`:"");const oc=own(x)==="家族"?"f":"m";
   if(tab==="rods"){
     const tipCount=x.tip?S.tips.filter(t=>sharp(t.no)===sharp(x.tip)&&!gone(t)).length:0;
-    return `<button class="item own-${oc}${gone(x)?" off":""}${x.status==="廃棄"?" haiki":""}" data-id="${esc(x.id)}">
-      <div class="top"><div><span class="who ${oc}">${own(x)}用</span><div class="mk">${esc(x.maker)}</div><div class="nm"><span class="t">${esc(x.name)} ${esc(x.model)}</span>${st}</div></div><div style="text-align:right">${usedTag(x)}<div class="pr num">${yen(x.price)}</div></div></div>
+    return `<button class="item own${gone(x)?" off":""}${x.status==="廃棄"?" haiki":""}" style="--oc:${ocol(own(x))}" data-id="${esc(x.id)}">${cardPh(x)}
+      <div class="top"><div>${purTag(x)} <span class="who" style="--oc:${ocol(own(x))}">${esc(own(x))}用</span><div class="mk">${esc(x.maker)}</div><div class="nm"><span class="t">${esc(x.name)} ${esc(x.model)}</span> ${stTag(x)}</div></div><div style="text-align:right">${usedTag(x)}<div class="pr num">${yen(x.price)}</div></div></div>
       ${rodSvg(x.len,"rods")}
       <div class="meta"><span>長さ <b class="num">${x.len?(x.len/100).toFixed(2)+"m":"—"}</b></span><span>自重 <b class="num">${x.wt?x.wt+"g":"—"}</b></span><span>購入 <b>${ym(x.date)}</b></span>
       ${x.tip?`<span><span class="tag">穂先 ${esc(sharp(x.tip))}</span> 替え${tipCount}本</span>`:""}</div>
       ${x.memo?`<div class="meta">${esc(x.memo)}</div>`:""}${stamp(x)}</button>`;
   }
   if(tab==="reels"){
-    return `<button class="item own-${oc}${gone(x)?" off":""}${x.status==="廃棄"?" haiki":""}" data-id="${esc(x.id)}">
-      <div class="top"><div><span class="kind ${x.type==="スピニング"?"sp":"bt"}">${esc(x.type||"種類未設定")}</span> <span class="who ${oc}">${own(x)}用</span><div class="mk">${esc(x.maker)}</div><div class="nm"><span class="t">${esc(x.name)}</span>${x.status==="予備"?st:""}</div></div><div style="text-align:right">${usedTag(x)}<div class="pr num">${yen(x.price)}</div></div></div>
-      <div class="specs"><span><small>ギア比</small><b class="num">${x.gear!=null&&x.gear!==""?Number(x.gear).toFixed(1):"—"}</b></span><span><small>最大ドラグ</small><b class="num">${x.drag!=null?x.drag+"kg":"—"}</b></span><span><small>巻上長</small><b class="num">${x.reel!=null?x.reel+"cm":"—"}</b></span></div>
+    return `<button class="item own${gone(x)?" off":""}${x.status==="廃棄"?" haiki":""}" style="--oc:${ocol(own(x))}" data-id="${esc(x.id)}">${cardPh(x)}
+      <div class="top"><div>${purTag(x)} <span class="kind ${x.type==="スピニング"?"sp":"bt"}">${esc(x.type||"種類未設定")}</span> <span class="who" style="--oc:${ocol(own(x))}">${esc(own(x))}用</span><div class="mk">${esc(x.maker)}</div><div class="nm"><span class="t">${esc(x.name)}</span> ${stTag(x)}</div></div><div style="text-align:right">${usedTag(x)}<div class="pr num">${yen(x.price)}</div></div></div>
+      <div class="specs"><span><small>ギア比 ${gearTag(x)}</small><b class="num">${x.gear!=null&&x.gear!==""?Number(x.gear).toFixed(1):"—"}</b></span><span><small>最大ドラグ</small><b class="num">${x.drag!=null?x.drag+"kg":"—"}</b></span><span><small>巻上長</small><b class="num">${x.reel!=null?x.reel+"cm":"—"}</b></span></div>
       <div class="meta"><span>購入 <b>${ym(x.date)}</b></span>${x.color?`<span>色 <b>${esc(x.color)}</b></span>`:""}</div>
       ${x.memo?`<div class="meta">${esc(x.memo)}</div>`:""}${stamp(x)}</button>`;
   }
   if(isCustom(tab)){
     const c=CATS.find(c=>c.key===tab),ex=(c&&c.extra||[]).filter(f=>x[f.key]!=null&&x[f.key]!=="");
-    return `<button class="item own-${oc}${gone(x)?" off":""}${x.status==="廃棄"?" haiki":""}" data-id="${esc(x.id)}">
-      <div class="top"><div><span class="who ${oc}">${own(x)}用</span><div class="mk">${esc(x.maker)}</div><div class="nm"><span class="t">${esc(x.name)} ${esc(x.model)}</span>${x.status==="予備"?st:""}</div></div><div style="text-align:right">${usedTag(x)}<div class="pr num">${yen(x.price)}</div></div></div>
+    return `<button class="item own${gone(x)?" off":""}${x.status==="廃棄"?" haiki":""}" style="--oc:${ocol(own(x))}" data-id="${esc(x.id)}">${cardPh(x)}
+      <div class="top"><div>${purTag(x)} <span class="who" style="--oc:${ocol(own(x))}">${esc(own(x))}用</span><div class="mk">${esc(x.maker)}</div><div class="nm"><span class="t">${esc(x.name)} ${esc(x.model)}</span> ${stTag(x)}</div></div><div style="text-align:right">${usedTag(x)}<div class="pr num">${yen(x.price)}</div></div></div>
       <div class="meta">${ex.map(f=>`<span>${esc(f.label)} <b>${esc(x[f.key])}</b></span>`).join("")}<span>購入 <b>${ym(x.date)}</b></span></div>
       ${x.memo?`<div class="meta">${esc(x.memo)}</div>`:""}${stamp(x)}</button>`;
   }
-  return `<button class="item${gone(x)?" off":""}${x.status==="廃棄"?" haiki":""}" data-id="${esc(x.id)}">
-    <div class="top"><div><div class="nm"><span class="t">${esc(x.name)}</span> <span class="tag${gone(x)?" g":""}">${esc(sharp(x.no))}</span>${x.status==="予備"?st:""}</div></div><div style="text-align:right">${usedTag(x)}<div class="pr num">${yen(x.price)}</div></div></div>
+  return `<button class="item${gone(x)?" off":""}${x.status==="廃棄"?" haiki":""}" data-id="${esc(x.id)}">${cardPh(x)}
+    <div class="top"><div>${purTag(x)}<div class="nm"><span class="t">${esc(x.name)}</span> <span class="tag${gone(x)?" g":""}">${esc(sharp(x.no))}</span> ${stTag(x)}</div></div><div style="text-align:right">${usedTag(x)}<div class="pr num">${yen(x.price)}</div></div></div>
+    ${rodNames(x).length?`<div class="meta"><span>対応する竿 ${rodsCell(x)}</span></div>`:""}
     <div class="meta"><span>購入 <b>${ym(x.date)}</b></span>${x.len?`<span>長さ <b class="num">${x.len}cm</b></span>`:""}</div>
     ${x.memo?`<div class="meta">${esc(x.memo)}</div>`:""}${stamp(x)}</button>`;
 }
 function renderStats(){
   const sum=TABS.flatMap(k=>S[k]).reduce((s,x)=>s+(Number(x.price)||0),0);
   $("stats").innerHTML=TABS.map(k=>`<div class="stat s-${k}"><b class="num">${S[k].filter(x=>!gone(x)).length}<small style="font-size:.5em">${UNIT[k]}</small></b><span>${LABEL[k]}</span></div>`).join("")+`
-  <div class="stat"><b class="num">${Math.round(sum/1000).toLocaleString("ja-JP")}<small style="font-size:.5em">千円</small></b><span>購入額の合計</span></div>`;
+  <div class="stat s-sum"><b class="num">${Math.round(sum/1000).toLocaleString("ja-JP")}<small style="font-size:.5em">千円</small></b><span>購入額の合計</span></div>`;
 }
 function renderList(){
   const keys=tab==="rods"||isCustom(tab)?[...new Set(S[tab].map(x=>x.maker).filter(Boolean))].sort((p,q)=>mr(p)-mr(q)||p.localeCompare(q,"ja")):tab==="reels"?[...OPTS.type.filter(t=>S.reels.some(x=>x.type===t)),...new Set(S.reels.map(x=>x.maker).filter(Boolean))]:STATUS.filter(s=>S.tips.some(x=>(x.status||"使用中")===s));
   if(maker!=="すべて"&&!keys.includes(maker))maker="すべて";
+  $("purp").hidden=!hasPur(tab);
+  if(hasPur(tab)){const cnt=p=>S[tab].filter(x=>p==="すべて"||(p==="未設定"?!x.purpose:x.purpose===p)).length;
+    const list=["すべて",...PUR,...(S[tab].some(x=>!x.purpose)?["未設定"]:[]),...[...new Set(S[tab].map(x=>x.purpose).filter(p=>p&&!PUR.includes(p)))]];
+    if(!list.includes(pur))pur="すべて";
+    $("purp").innerHTML=`<span class="pl">用途</span>`+list.map(p=>`<button type="button" class="pb${p==="未設定"?" un":""}"${p!=="すべて"&&p!=="未設定"?` style="--pc:${pcol(p)}"`:""} aria-pressed="${p===pur}" data-p="${esc(p)}">${p==="すべて"?"すべて":esc(p)}<span class="num"> ${cnt(p)}</span></button>`).join("")+`<button type="button" class="pb edit" id="purEdit">用途の追加・削除</button>`}
   $("who").hidden=tab==="tips";
-  $("who").innerHTML=["すべて",...OWNERS].map(k=>`<button aria-pressed="${k===who}" data-k="${k}">${k==="すべて"?"全員":k+"用"}<span class="num"> ${k==="すべて"?S[tab].length:S[tab].filter(x=>own(x)===k).length}</span></button>`).join("");
+  {const ol=[...OWNERS,...[...new Set(S[tab].map(x=>x.owner).filter(o=>o&&!OWNERS.includes(o)))]];if(who!=="すべて"&&!ol.includes(who))who="すべて";
+  $("who").innerHTML=["すべて",...ol].map(k=>`<button aria-pressed="${k===who}" data-k="${esc(k)}"${k==="すべて"?"":` style="--oc:${ocol(k)}"`}>${k==="すべて"?"全員":esc(k)+"用"}<span class="num"> ${k==="すべて"?S[tab].length:S[tab].filter(x=>own(x)===k).length}</span></button>`).join("")+`<button type="button" class="wedit" id="ownEdit">使う人の追加・削除</button>`}
   $("chips").innerHTML=["すべて",...keys].map(k=>`<button class="chip" aria-pressed="${k===maker}" data-k="${esc(k)}">${esc(k)}</button>`).join("");
-    $("catEdit").hidden=!isCustom(tab);
+    $("catEdit").hidden=!isCustom(tab);$("gearGuide").hidden=tab!=="reels";
   $("view").innerHTML=[["table","一覧表"],["card","カード"]].map(([k,l])=>`<button aria-pressed="${k===view}" data-k="${k}">${l}</button>`).join("");
   const a=filtered(),asTable=view==="table";
   const groups=[];const live=a.filter(x=>!gone(x));
-  if(tab==="reels")["ベイト","スピニング",""].forEach(t=>{const v=live.filter(x=>(OPTS.type.includes(x.type)?x.type:"")===t);
+  const byPur=$("sort").value==="pur-a"&&hasPur(tab);
+  if(byPur){const ks=[...new Set(live.map(x=>x.purpose||""))];ks.forEach(p=>{const v=live.filter(x=>(x.purpose||"")===p);
+    groups.push([`<div class="sect ph${p?"":" none"}"${p?` style="--pc:${pcol(p)}"`:""}>${p?esc(p):"用途なし"}（${v.length}${UNIT[tab]}）</div>`,v])})}
+  else if(tab==="reels")["ベイト","スピニング",""].forEach(t=>{const v=live.filter(x=>(OPTS.type.includes(x.type)?x.type:"")===t);
     if(v.length)groups.push([`<div class="sect kh ${t==="スピニング"?"sp":t?"bt":""}">${t||"種類未設定"}（${v.length}台）</div>`,v])});
   else groups.push(["",live]);
-  ["引退","廃棄"].forEach(s=>{const v=a.filter(x=>x.status===s);if(v.length)groups.push([`<div class="sect">${s}した${LABEL[tab]}（${v.length}${UNIT[tab]}）</div>`,v])});
+  {const v=a.filter(gone);if(v.length)groups.push([`<div class="sect">廃棄した${LABEL[tab]}（${v.length}${UNIT[tab]}）</div>`,v])}
   $("list").classList.toggle("tbl",asTable);
   {const all=S[tab]||[],u=UNIT[tab],sumP=v=>v.reduce((s,x)=>s+(Number(x.price)||0),0),y=n=>Number(n).toLocaleString("ja-JP")+"円";
    const act=all.filter(x=>!gone(x)),old=all.filter(gone),filt=a.length!==all.length;
    $("sub").innerHTML=all.length?`<div class="st-t">${esc(LABEL[tab])}の小計</div>
-   <div class="st-row"><span>全部</span><b class="num">${all.length}${u}</b><b class="num">${y(sumP(all))}</b></div>
-   <div class="st-row s"><span>使用中・予備</span><b class="num">${act.length}${u}</b><b class="num">${y(sumP(act))}</b></div>
-   ${old.length?`<div class="st-row s"><span>引退・廃棄</span><b class="num">${old.length}${u}</b><b class="num">${y(sumP(old))}</b></div>`:""}
-   ${filt?`<div class="st-row f"><span>いま表示中</span><b class="num">${a.length}${u}</b><b class="num">${y(sumP(a))}</b></div>`:""}`:""}
+   <div class="st-row"><span>全部</span><b class="num">${all.length}${u}</b><b class="num amt">${y(sumP(all))}</b></div>
+   <div class="st-row s"><span>使用中・予備</span><b class="num">${act.length}${u}</b><b class="num amt">${y(sumP(act))}</b></div>
+   ${old.length?`<div class="st-row s"><span>廃棄</span><b class="num">${old.length}${u}</b><b class="num amt">${y(sumP(old))}</b></div>`:""}
+   ${filt?`<div class="st-row f"><span>いま表示中</span><b class="num">${a.length}${u}</b><b class="num amt">${y(sumP(a))}</b></div>`:""}`:""}
+  setTimeout(()=>fillThumbs($("list")),0);
   $("list").innerHTML=a.length?groups.map(([hd,v])=>hd+(asTable?table(v):v.map(card).join(""))).join(""):
     `<div class="empty">${S[tab].length?"条件に合うものがありません":"まだ登録がありません。右下の「＋ 追加」から登録できます"}</div>`;
 }
+const gearClass=x=>{const g=Number(x.gear);if(x.gear==null||x.gear===""||!g)return null;
+  const t=x.type==="スピニング"?[5.0,5.8,6.2]:[5.5,6.5,7.5];const i=g<t[0]?0:g<t[1]?1:g<t[2]?2:3;
+  return {i,label:["ローギア","ノーマル","ハイギア","エクストラハイ"][i]}};
+const gearTag=x=>{const c=gearClass(x);return c?`<span class="gc g${c.i+1}">${c.label}</span>`:""};
 const num=(v,u,f)=>v==null||v===""?"—":(f?Number(v).toFixed(f):v)+(u||"");
 const COLS={
-  rods:[["使う人",x=>`<span class="who ${own(x)==="家族"?"f":"m"}">${own(x)}</span>`],["メーカー",x=>esc(x.maker)],["商品名",x=>`<b>${esc(x.name)}</b>`,"nm"],["品番",x=>esc(x.model)],
-    ["長さ",x=>x.len?(x.len/100).toFixed(2)+"m":"—","r"],["自重",x=>num(x.wt,"g"),"r"],["穂先",x=>esc(sharp(x.tip))||"—"],["購入",x=>ym(x.date)],["価格",x=>yen(x.price),"r"],["新/中",x=>x.used==="中古"?'<span class="used">中古</span>':"新品"],["状態",x=>esc(x.status||"使用中")]],
-  tips:[["商品名",x=>`<b>${esc(x.name)}</b>`,"nm"],["番手",x=>`<span class="tag${gone(x)?" g":""}">${esc(sharp(x.no))||"—"}</span>`],["長さ",x=>num(x.len,"cm"),"r"],
-    ["購入",x=>ym(x.date)],["価格",x=>yen(x.price),"r"],["新/中",x=>x.used==="中古"?'<span class="used">中古</span>':"新品"],["状態",x=>esc(x.status||"使用中")],["メモ",x=>esc(x.memo),"nm"]],
-  reels:[["使う人",x=>`<span class="who ${own(x)==="家族"?"f":"m"}">${own(x)}</span>`],["メーカー",x=>esc(x.maker)],["商品名",x=>`<b>${esc(x.name)}</b>`,"nm"],
-    ["ギア比",x=>num(x.gear,"",1),"r"],["ドラグ",x=>num(x.drag,"kg"),"r"],["巻上長",x=>num(x.reel,"cm"),"r"],["色",x=>esc(x.color)||"—"],["購入",x=>ym(x.date)],["価格",x=>yen(x.price),"r"],["新/中",x=>x.used==="中古"?'<span class="used">中古</span>':"新品"],["状態",x=>esc(x.status||"使用中")]]
+  rods:[["用途",x=>purTag(x)],["使う人",x=>`<span class="who" style="--oc:${ocol(own(x))}">${esc(own(x))}</span>`],["メーカー",x=>esc(x.maker)],["商品名",x=>`<b>${esc(x.name)}</b>`,"nm"],["品番",x=>esc(x.model)],
+    ["長さ",x=>x.len?(x.len/100).toFixed(2)+"m":"—","r"],["自重",x=>num(x.wt,"g"),"r"],["穂先",x=>esc(sharp(x.tip))||"—"],["購入",x=>ym(x.date)],["価格",x=>yen(x.price),"r"],["新/中",x=>x.used==="中古"?'<span class="used">中古</span>':"新品"],["状態",x=>stTag(x)]],
+  tips:[["用途",x=>purTag(x)],["対応する竿",x=>rodsCell(x),"nm"],["商品名",x=>`<b>${esc(x.name)}</b>`,"nm"],["番手",x=>`<span class="tag${gone(x)?" g":""}">${esc(sharp(x.no))||"—"}</span>`],["長さ",x=>num(x.len,"cm"),"r"],
+    ["購入",x=>ym(x.date)],["価格",x=>yen(x.price),"r"],["新/中",x=>x.used==="中古"?'<span class="used">中古</span>':"新品"],["状態",x=>stTag(x)],["メモ",x=>esc(x.memo),"nm"]],
+  reels:[["用途",x=>purTag(x)],["使う人",x=>`<span class="who" style="--oc:${ocol(own(x))}">${esc(own(x))}</span>`],["メーカー",x=>esc(x.maker)],["商品名",x=>`<b>${esc(x.name)}</b>`,"nm"],
+    ["ギア比",x=>num(x.gear,"",1),"r"],["区分",x=>gearTag(x)||"—"],["ドラグ",x=>num(x.drag,"kg"),"r"],["巻上長",x=>num(x.reel,"cm"),"r"],["色",x=>esc(x.color)||"—"],["購入",x=>ym(x.date)],["価格",x=>yen(x.price),"r"],["新/中",x=>x.used==="中古"?'<span class="used">中古</span>':"新品"],["状態",x=>stTag(x)]]
 };
 function table(v){
-  const c=COLS[tab];
-  return `<div class="scroll tw"><table><thead><tr>${c.map(([l,,k])=>`<th class="${k||""}">${l}</th>`).join("")}</tr></thead><tbody>${
-    v.map((x,i)=>`<tr class="${gone(x)?"off":""}${i>0&&tab!=="tips"&&(x.maker||"")!==(v[i-1].maker||"")?" brk":""}${tab==="tips"?"":" own-"+(own(x)==="家族"?"f":"m")}" data-id="${esc(x.id)}" tabindex="0">${c.map(([,f,k])=>`<td class="${k||""}">${f(x)}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+  const c=[["写真",x=>thumb(x,"tt")],...COLS[tab].filter(col=>!(hidePrice&&col[0]==="価格"))];
+  return `<div class="scroll tw"><table><thead><tr>${c.map(([l,,k])=>`<th class="${k||""}">${l}</th>`).join("")}<th class="op">操作</th></tr></thead><tbody>${
+    v.map((x,i)=>`<tr class="${gone(x)?"off":x.status==="予備"?"yobi":""}${i>0&&tab!=="tips"&&(x.maker||"")!==(v[i-1].maker||"")?" brk":""}${tab==="tips"?"":" own"}"${tab==="tips"?"":` style="--oc:${ocol(own(x))}"`} data-id="${esc(x.id)}" tabindex="0">${c.map(([,f,k])=>`<td class="${k||""}">${f(x)}</td>`).join("")}<td class="op"><button type="button" class="opb ed" data-op="edit">編集</button><button type="button" class="opb dl" data-op="del">削除</button></td></tr>`).join("")}</tbody>
+    <tfoot><tr><td colspan="${c.length+1}"><button type="button" class="addrow" data-op="add">＋ ${esc(LABEL[tab])}を追加</button></td></tr></tfoot></table></div>`;
 }
-function render(){renderStats();renderList()}
+function render(){renderStats();renderTabs();renderList()}
 
 /* 編集ダイアログ */
 function openForm(item){
-  editing=item?{...item}:{id:null,status:"使用中",type:"ベイト",owner:who==="家族"?"家族":"本人"};
+  editing=item?{...item,...(item.status==="引退"?{status:"廃棄"}:{})}:{id:null,status:"使用中",type:"ベイト",owner:who!=="すべて"&&OWNERS.includes(who)?who:OWNERS[0],purpose:hasPur(tab)&&pur!=="すべて"&&pur!=="未設定"?pur:""};
   $("dTitle").textContent=(item?"編集：":"追加：")+LABEL[tab];
   $("del").hidden=$("dup").hidden=!item;
-  $("fields").innerHTML=FIELDS[tab].map(([k,l,t,w])=>`<label class="${w||""}">${l}${
+  $("fields").innerHTML=FIELDS[tab].map(([k,l,t,w])=>t==="rods"?(()=>{const sel=Array.isArray(editing[k])?editing[k]:[];
+      const rs=S.rods.filter(r=>!gone(r)||sel.includes(r.id)).slice().sort((a,b)=>purRank(a)-purRank(b)||mr(a.maker)-mr(b.maker)||String(a.name).localeCompare(b.name,"ja"));
+      return `<div class="w rodpick"><div class="rp-h">${l}<span class="note" style="margin:0">（複数選べます）</span></div><div class="rp-list">${rs.length?rs.map(r=>`<label class="rp"><input type="checkbox" name="${k}" value="${esc(r.id)}"${sel.includes(r.id)?" checked":""}><span>${esc(rodLabel(r))}</span><small>${esc(r.maker||"")}${r.purpose?" ・"+esc(r.purpose):""}</small></label>`).join(""):'<p class="note">竿が登録されていません</p>'}</div></div>`})():`<label class="${w||""}">${l}${
+    t==="purpose"?`<select name="${k}" id="purSel"><option value="">（未設定）</option>${[...PUR,...(editing[k]&&!PUR.includes(editing[k])?[editing[k]]:[])].map(s=>`<option${editing[k]===s?" selected":""}>${esc(s)}</option>`).join("")}<option value="__new__">＋ 新しい用途を追加…</option></select></label><div class="newpur w" id="newPurRow" hidden><input id="purInline" placeholder="新しい用途の名前（例：タイラバ用）" aria-label="新しい用途の名前"><button type="button" class="btn p" id="purInlineAdd">追加</button></div><label hidden>`:
     t==="select"?`<select name="${k}">${opts(k).map(s=>`<option${(editing[k]||opts(k)[0])===s?" selected":""}>${s}</option>`).join("")}</select>`:
     t==="textarea"?`<textarea name="${k}" rows="2">${esc(editing[k])}</textarea>`:
     `<input name="${k}" type="${t}" ${t==="number"?'inputmode="decimal" min="0" step="any"':""} value="${esc(editing[k])}">`}</label>`).join("");
+  editing.photos=Array.isArray(editing.photos)?editing.photos.slice():[];renderPhForm();
   $("dlg").showModal();
 }
+$("fields").addEventListener("change",e=>{if(e.target.id==="purSel"){const on=e.target.value==="__new__";$("newPurRow").hidden=!on;if(on)$("purInline").focus()}});
+async function addPurInline(){
+  const v=$("purInline").value.trim();if(!v){$("purInline").focus();return null}
+  if(!PUR.includes(v)){setPur([...PUR,v]);try{await savePur()}catch(err){toast("用途を保存できませんでした",false)}}
+  const sel=$("purSel");if(![...sel.options].some(o=>o.value===v)){const o=document.createElement("option");o.textContent=v;sel.insertBefore(o,sel.querySelector('[value="__new__"]'))}
+  sel.value=v;$("newPurRow").hidden=true;$("purInline").value="";toast(`用途「${v}」を追加しました`,false);return v;
+}
+$("fields").addEventListener("click",e=>{if(e.target.id==="purInlineAdd")addPurInline()});
+$("fields").addEventListener("keydown",e=>{if(e.target.id==="purInline"&&e.key==="Enter"){e.preventDefault();addPurInline()}});
 $("f").addEventListener("submit",async e=>{
   e.preventDefault();
+  if($("purSel")&&$("purSel").value==="__new__"){const v=await addPurInline();if(!v)$("purSel").value=""}
   const fd=new FormData($("f")),k=tab,item={...editing};
-  FIELDS[k].forEach(([n,,t])=>{let v=(fd.get(n)||"").toString().trim();item[n]=t==="number"?(v===""?null:Number(v)):v});
+  FIELDS[k].forEach(([n,,t])=>{if(t==="rods"){item[n]=fd.getAll(n).map(String);return}let v=(fd.get(n)||"").toString().trim();item[n]=t==="number"?(v===""?null:Number(v)):v});
   if(!item.name){$("f").querySelector('[name=name]').focus();return}
   if(!item.id){item.id=newId(k);item.o=Date.now()}
   $("dlg").close();
@@ -463,7 +652,7 @@ function setTab(t){tab=t;maker="すべて";
   $("q").value="";$("csvOut").hidden=true;render()}
 $("tabs").onclick=e=>{const b=e.target.closest("button");if(!b)return;if(b.id==="addCat")openCat(null);else setTab(b.dataset.k)};
 $("q").oninput=renderList;$("sort").onchange=renderList;
-$("who").onclick=e=>{const b=e.target.closest("button");if(b){who=b.dataset.k;renderList()}};
+$("who").onclick=e=>{const b=e.target.closest("button[data-k]");if(b){who=b.dataset.k;renderList()}};
 $("chips").onclick=e=>{const b=e.target.closest(".chip");if(b){maker=b.dataset.k;renderList()}};
 /* 保存：全部の分類を1つのExcelファイル（分類ごとにシート）に */
 let xlsxP=null;
@@ -471,7 +660,7 @@ function loadXLSX(){if(window.XLSX)return Promise.resolve(window.XLSX);
   return xlsxP=xlsxP||new Promise((ok,ng)=>{const s=document.createElement("script");s.src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js";s.onload=()=>ok(window.XLSX);s.onerror=()=>{xlsxP=null;ng(new Error("Excel機能を読み込めませんでした（通信を確認してください）"))};document.head.appendChild(s)})}
 function colsOf(k){
   return [...(k!=="tips"?[["使う人",x=>own(x)]]:[]),...FIELDS[k].filter(f=>f[0]!=="owner").map(([n,l,t])=>[l,x=>n==="date"?(x.date?ym(x.date):""):
-    n==="gear"&&x.gear!=null&&x.gear!==""?Number(Number(x.gear).toFixed(1)):n==="tip"||n==="no"?sharp(x[n]):n==="status"?(x.status||"使用中"):n==="used"?(x.used||"新品"):
+    n==="gear"&&x.gear!=null&&x.gear!==""?Number(Number(x.gear).toFixed(1)):t==="rods"?rodNames(x).join("、"):n==="tip"||n==="no"?sharp(x[n]):n==="status"?(x.status||"使用中"):n==="used"?(x.used||"新品"):
     t==="number"?(x[n]==null||x[n]===""?"":Number(x[n])):(x[n]??"")]),["ID",x=>x.id]];
 }
 function rowsOf(k){
@@ -497,7 +686,20 @@ $("save").onclick=saveAll;
 
 $("view").onclick=e=>{const b=e.target.closest("button");if(b){view=b.dataset.k;try{localStorage.setItem("saoView2",view)}catch(err){}renderList()}};
 $("list").onkeydown=e=>{if(e.key==="Enter"){const r=e.target.closest("tr[data-id]");if(r)openForm(S[tab].find(x=>x.id===r.dataset.id))}};
-$("list").onclick=e=>{const b=e.target.closest(".item,tr[data-id]");if(b)openForm(S[tab].find(x=>x.id===b.dataset.id))};
+let armT=null;
+$("list").onclick=async e=>{
+  const op=e.target.closest("[data-op]");
+  if(op){e.stopPropagation();const k=tab,tr=op.closest("tr[data-id]"),item=tr&&S[k].find(x=>x.id===tr.dataset.id);
+    if(op.dataset.op==="add"){openForm(null);return}
+    if(op.dataset.op==="edit"&&item){openForm(item);return}
+    if(op.dataset.op==="del"&&item){
+      if(!op.classList.contains("arm")){$("list").querySelectorAll(".opb.arm").forEach(b=>{b.classList.remove("arm");b.textContent="削除"});
+        op.classList.add("arm");op.textContent="本当に削除";clearTimeout(armT);armT=setTimeout(()=>{op.classList.remove("arm");op.textContent="削除"},3500);return}
+      clearTimeout(armT);lastDel={k,item};
+      try{await remove(k,item.id);toast(`「${item.name}」を削除しました`,true)}catch(err){toast("削除できませんでした",false)}
+    }
+    return}
+  const b=e.target.closest(".item,tr[data-id]");if(b)openForm(S[tab].find(x=>x.id===b.dataset.id))};
 $("add").onclick=()=>openForm(null);
 
 /* 分類の追加・設定 */
@@ -560,11 +762,12 @@ function itemsFrom(k,rows){
   return rows.slice(1).map((r,ri)=>{
     const x={},cell=i=>String(r[i]??"").trim();
     fmap.forEach(({n,t,i})=>{if(i<0)return;const v=cell(i);
+      if(t==="rods"){x[n]=v.split(/[、,，]/).map(s=>s.trim()).filter(Boolean).map(s=>(S.rods.find(r=>rodLabel(r)===s)||S.rods.find(r=>r.name===s)||{}).id).filter(Boolean);return}
       if(t==="number"){const m=v.replace(/[,，円¥￥]/g,"").match(/-?\d+(\.\d+)?/);x[n]=m?Number(m[0]):null}
       else if(t==="month"){const m=v.match(/(\d{4})\D+(\d{1,2})/);x[n]=m?m[1]+"-"+String(m[2]).padStart(2,"0"):""}
       else if(t==="select"){const o=opts(n);x[n]=o.includes(v)?v:o[0]}
       else x[n]=n==="tip"||n==="no"?sharp(v):v});
-    if(ow>=0)x.owner=OWNERS.includes(cell(ow))?cell(ow):"本人";
+    if(ow>=0)x.owner=OWNERS.includes(cell(ow))?cell(ow):OWNERS[0];
     x.status=x.status||"使用中";x.used=x.used||"新品";
     const id=idc>=0?cell(idc):"";x.id=/^[\w\-.~:@+]{1,100}$/.test(id)?id:newId(k);x.o=Date.now()+ri;
     return x}).filter(x=>x.name);
@@ -608,6 +811,7 @@ async function runImport(replace){
     for(const c of newCats)await putCat(c);
     if(!useLocal)newCats.forEach(c=>watch(c.key));
     for(const {k,items} of jobs){
+      items.forEach(x=>{const old=(S[k]||[]).find(y=>y.id===x.id);if(old&&Array.isArray(old.photos)&&!x.photos)x.photos=old.photos});
       S[k]=S[k]||[];
       if(useLocal){S[k]=replace?items:[...S[k].filter(x=>!items.some(y=>y.id===x.id)),...items];saveLocal()}
       else{
@@ -623,6 +827,115 @@ async function runImport(replace){
 $("iCancel").onclick=()=>{const p=pending;$("dlgImp").close();pending=null;if(p&&p.newCats.length)applyCats(CATS.filter(c=>!p.newCats.includes(c)))};
 $("iMerge").onclick=()=>runImport(false);
 $("iReplace").onclick=()=>runImport(true);
+
+/* ===== 写真 ===== */
+const PHC=new Map();let photoRemote=null;
+const idb=(()=>{let p=null;return ()=>p=p||new Promise((ok,ng)=>{try{const r=indexedDB.open("tsuriDouguPhotos",1);r.onupgradeneeded=()=>r.result.createObjectStore("p");r.onsuccess=()=>ok(r.result);r.onerror=()=>ng(r.error)}catch(e){ng(e)}})})();
+async function idbGet(id){try{const d=await idb();return await new Promise(ok=>{const q=d.transaction("p").objectStore("p").get(id);q.onsuccess=()=>ok(q.result||null);q.onerror=()=>ok(null)})}catch(e){return null}}
+async function idbPut(id,v){try{const d=await idb();await new Promise(ok=>{const t=d.transaction("p","readwrite");t.objectStore("p").put(v,id);t.oncomplete=ok;t.onerror=ok})}catch(e){}}
+async function photoPut(id,data){PHC.set(id,data);
+  if(!useLocal&&db){await db.doc("data/tackle/photos/"+id).set({d:data});return}
+  await idbPut(id,data);if(photoRemote)photoRemote.put(id,data).catch(()=>{});
+}
+async function photoGet(id){
+  if(PHC.has(id))return PHC.get(id);let d=null;
+  if(!useLocal&&db){try{const s=await db.doc("data/tackle/photos/"+id).get();d=s.exists?s.data().d:null}catch(e){}}
+  else{d=await idbGet(id);if(!d&&photoRemote){try{d=await photoRemote.get(id);if(d)await idbPut(id,d)}catch(e){}}}
+  if(d)PHC.set(id,d);return d;
+}
+const phIds=x=>Array.isArray(x.photos)?x.photos:[];
+const thumb=(x,cls)=>{const p=phIds(x);return p.length?`<span class="${cls}"><img data-pid="${esc(p[0])}" alt="">${p.length>1?`<b>${p.length}</b>`:""}</span>`:'<span class="'+cls+' none">—</span>'};
+const cardPh=x=>{const p=phIds(x);return p.length?`<span class="cph">${p.slice(0,4).map(id=>`<img data-pid="${esc(id)}" alt="">`).join("")}</span>`:""};
+async function fillThumbs(root){for(const im of root.querySelectorAll("img[data-pid]:not([src])")){const d=await photoGet(im.dataset.pid);if(d)im.src=d;else im.closest(".tt,.cph,.phi")?.classList.add("miss")}}
+function shrink(file){return new Promise((ok,ng)=>{const u=URL.createObjectURL(file),im=new Image();
+  im.onload=()=>{let s=Math.min(1,1000/Math.max(im.width,im.height)),q=.72,out="";
+    for(let i=0;i<6;i++){const c=document.createElement("canvas");c.width=Math.round(im.width*s);c.height=Math.round(im.height*s);c.getContext("2d").drawImage(im,0,0,c.width,c.height);out=c.toDataURL("image/jpeg",q);if(out.length<190000)break;s*=.8;q=Math.max(.5,q-.05)}
+    URL.revokeObjectURL(u);ok(out)};
+  im.onerror=()=>{URL.revokeObjectURL(u);ng(new Error("画像を読み込めませんでした"))};im.src=u})}
+function renderPhForm(){
+  const p=editing.photos||[];
+  $("phList").innerHTML=p.map((id,i)=>`<span class="phi"><img data-pid="${esc(id)}" alt="写真${i+1}" data-big="${esc(id)}"><button type="button" class="phx" data-rm="${i}" aria-label="この写真を外す">×</button>${i?`<button type="button" class="phl" data-left="${i}" aria-label="前へ">◀</button>`:'<span class="ph1">表紙</span>'}</span>`).join("")||'<p class="note" style="margin:0">写真はまだありません</p>';
+  $("phAddBtn").hidden=p.length>=4;fillThumbs($("phList"));
+}
+$("phFile").onchange=async()=>{
+  const fs=[...$("phFile").files].slice(0,4-(editing.photos||[]).length);$("phFile").value="";
+  for(const f of fs){try{toast("写真を縮小して保存中…",false);const d=await shrink(f),id="p"+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+    await photoPut(id,d);editing.photos=[...(editing.photos||[]),id];renderPhForm()}catch(err){toast("写真を保存できませんでした："+(err.code||err.message),false)}}
+  toast("写真を追加しました。「保存」を押すと確定します",false);
+};
+$("phList").onclick=e=>{const rm=e.target.closest("[data-rm]"),lf=e.target.closest("[data-left]"),big=e.target.closest("[data-big]");
+  if(rm){editing.photos.splice(+rm.dataset.rm,1);renderPhForm();return}
+  if(lf){const i=+lf.dataset.left,p=editing.photos;[p[i-1],p[i]]=[p[i],p[i-1]];renderPhForm();return}
+  if(big){photoGet(big.dataset.big).then(d=>{if(d){$("phBig").src=d;$("dlgPh").showModal()}})}};
+$("phClose").onclick=()=>$("dlgPh").close();
+
+/* 用途の追加・削除 */
+function setPur(list){PUR=list.slice();S.purposes=PUR.slice()}
+async function savePur(){
+  if(useLocal){S.purposes=PUR.slice();saveLocal();render();return}
+  await db.doc("data/tackle/settings/purposes").set({list:PUR});render();
+}
+let purDelArm=null;
+function renderPurList(){
+  const used=p=>TABS.reduce((n,k)=>n+S[k].filter(x=>x.purpose===p).length,0);
+  $("purList").innerHTML=PUR.length?PUR.map((p,i)=>`<div class="prow"><span class="pur" style="--pc:${pcol(p)}">${esc(p)}</span><span class="note" style="margin:0">${used(p)}件</span>
+    <span class="btns"><button type="button" class="opb" data-up="${i}" ${i?"":"disabled"} aria-label="上へ">↑</button><button type="button" class="opb dl${purDelArm===p?" arm":""}" data-del="${esc(p)}">${purDelArm===p?"本当に削除":"削除"}</button></span></div>`).join(""):'<p class="note">用途がありません。下から追加してください。</p>';
+}
+$("purp").onclick=e=>{const b=e.target.closest("button");if(!b)return;if(b.id==="purEdit"){purDelArm=null;$("purMsg").textContent="";renderPurList();$("dlgPur").showModal();return}pur=b.dataset.p;renderList()};
+$("purClose").onclick=()=>$("dlgPur").close();
+$("fp").addEventListener("submit",async e=>{e.preventDefault();const v=$("purNew").value.trim();if(!v)return;
+  if(PUR.includes(v)){$("purMsg").textContent="同じ用途があります";return}
+  setPur([...PUR,v]);$("purNew").value="";$("purMsg").textContent="";renderPurList();
+  try{await savePur();toast(`「${v}」を追加しました`,false)}catch(err){toast("保存できませんでした",false)}});
+$("purList").onclick=async e=>{
+  const up=e.target.closest("[data-up]"),del=e.target.closest("[data-del]");
+  if(up){const i=+up.dataset.up;if(!i)return;const l=PUR.slice();[l[i-1],l[i]]=[l[i],l[i-1]];setPur(l);renderPurList();try{await savePur()}catch(err){}return}
+  if(del){const p=del.dataset.del;
+    if(purDelArm!==p){purDelArm=p;const n=TABS.reduce((s,k)=>s+S[k].filter(x=>x.purpose===p).length,0);$("purMsg").textContent=n?`「${p}」の道具が${n}件あります。削除すると、それらは「用途なし」になります。`:"";renderPurList();return}
+    purDelArm=null;setPur(PUR.filter(x=>x!==p));if(pur===p)pur="すべて";$("purMsg").textContent="";renderPurList();
+    try{for(const k of TABS)for(const x of S[k].filter(x=>x.purpose===p))await put(k,{...x,purpose:""});await savePur();toast(`「${p}」を削除しました`,false)}
+    catch(err){toast("削除の途中で止まりました",false)}}
+};
+/* 使う人の追加・削除 */
+async function saveOwn(){
+  if(useLocal){S.owners=OWNERS.slice();saveLocal();render();return}
+  await db.doc("data/tackle/settings/owners").set({list:OWNERS});render();
+}
+let ownDelArm=null;
+const ownUsed=o=>TABS.reduce((n,k)=>n+(S[k]||[]).filter(x=>k!=="tips"&&own(x)===o).length,0);
+function renderOwnList(){
+  $("ownList").innerHTML=OWNERS.map((o,i)=>`<div class="prow"><span class="who" style="--oc:${ocol(o)}">${esc(o)}用</span><span class="note" style="margin:0">${ownUsed(o)}件</span>
+    <span class="btns"><button type="button" class="opb" data-up="${i}" ${i?"":"disabled"} aria-label="上へ">↑</button><button type="button" class="opb dl${ownDelArm===o?" arm":""}" data-del="${esc(o)}" ${OWNERS.length<2?"disabled":""}>${ownDelArm===o?"本当に削除":"削除"}</button></span></div>`).join("");
+}
+$("who").addEventListener("click",e=>{if(e.target.closest("#ownEdit")){e.stopImmediatePropagation();ownDelArm=null;$("ownMsg").textContent="";renderOwnList();$("dlgOwn").showModal()}},true);
+$("ownClose").onclick=()=>$("dlgOwn").close();
+$("fo").addEventListener("submit",async e=>{e.preventDefault();const v=$("ownNew").value.trim().replace(/用$/,"");if(!v)return;
+  if(OWNERS.includes(v)){$("ownMsg").textContent="同じ名前があります";return}
+  OWNERS=[...OWNERS,v];$("ownNew").value="";$("ownMsg").textContent="";renderOwnList();
+  try{await saveOwn();toast(`「${v}用」を追加しました`,false)}catch(err){toast("保存できませんでした",false)}});
+$("ownList").onclick=async e=>{
+  const up=e.target.closest("[data-up]"),del=e.target.closest("[data-del]");
+  if(up){const i=+up.dataset.up;if(!i)return;const l=OWNERS.slice();[l[i-1],l[i]]=[l[i],l[i-1]];OWNERS=l;renderOwnList();try{await saveOwn()}catch(err){}return}
+  if(del){const o=del.dataset.del;if(OWNERS.length<2)return;
+    if(ownDelArm!==o){ownDelArm=o;const n=ownUsed(o);const rest=OWNERS.filter(x=>x!==o)[0];$("ownMsg").textContent=n?`「${o}用」の道具が${n}件あります。削除すると「${rest}用」に変わります。`:"";renderOwnList();return}
+    ownDelArm=null;const items=TABS.filter(k=>k!=="tips").flatMap(k=>(S[k]||[]).filter(x=>own(x)===o).map(x=>[k,x]));
+    OWNERS=OWNERS.filter(x=>x!==o);if(who===o)who="すべて";$("ownMsg").textContent="";renderOwnList();
+    try{for(const [k,x] of items)await put(k,{...x,owner:OWNERS[0]});await saveOwn();toast(`「${o}用」を削除しました`,false)}
+    catch(err){toast("削除の途中で止まりました",false)}}
+};
+
+/* 初めて用途の機能を使うとき：竿は海上釣堀用にしておく */
+function migratePur(){let ch=false;
+  if(!Array.isArray(S.purposes)){S.purposes=[...DEF_PUR];(S.rods||[]).forEach(r=>{if(r.purpose===undefined)r.purpose="海上釣堀用"});ch=true}
+  if((S.purVer||0)<2){(S.tips||[]).forEach(r=>{if(r.purpose===undefined)r.purpose="海上釣堀用"});S.purVer=2;ch=true}
+  if((S.catVer||0)<1){S.cats=S.cats||[];
+    DEF_CATS.forEach(c=>{if(!S.cats.some(x=>x.label===c.label||x.id===c.id))S.cats.push(JSON.parse(JSON.stringify(c)))});S.catVer=1;ch=true}
+  if(Array.isArray(S.owners)&&S.owners.length)OWNERS=S.owners.slice();
+  PUR=S.purposes.slice();return ch;
+}
+
+$("priceBtn").onclick=()=>{hidePrice=!hidePrice;try{localStorage.setItem("tsuriHidePrice",hidePrice?"1":"0")}catch(e){}applyPrice();render()};
+applyPrice();
 
 /* ===== Googleスプレッドシート同期 ===== */
 const SK=LS+".syncUrl",TK=LS+".t";
@@ -645,7 +958,7 @@ async function push(){
   }catch(e){busy=false;syncMsg("同期できませんでした。通信状態を確認してください（この端末には保存済み）")}
 }
 function applyRemote(data,t){
-  Object.keys(S).forEach(k=>delete S[k]);Object.assign(S,{rods:[],tips:[],reels:[],cats:[]},data);
+  Object.keys(S).forEach(k=>delete S[k]);Object.assign(S,{rods:[],tips:[],reels:[],cats:[]},data);migratePur();
   try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}
   localStamp=t;try{localStorage.setItem(TK,String(t))}catch(e){}
   applyCats(S.cats||[]);render();
@@ -659,6 +972,15 @@ async function pull(quiet){
     else syncMsg("同期しました（"+new Date().toLocaleTimeString("ja-JP",{hour:"2-digit",minute:"2-digit"})+"）");
   }catch(e){busy=false;syncMsg("同期できませんでした。URLと通信状態を確認してください（この端末には保存済み）")}
 }
+photoRemote={
+  put:async(id,d)=>{if(!syncUrl)return;const r=await fetch(syncUrl,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({pw:syncPw,action:"photoPut",id,d})});return r.json()},
+  get:async id=>{if(!syncUrl)return null;const r=await fetch(syncUrl+(syncUrl.includes("?")?"&":"?")+"pw="+encodeURIComponent(syncPw)+"&action=photo&id="+encodeURIComponent(id));const j=await r.json();return j&&j.d||null}
+};
+async function pushAllPhotos(){
+  const ids=[...new Set(Object.keys(S).flatMap(k=>Array.isArray(S[k])?S[k].flatMap(x=>Array.isArray(x&&x.photos)?x.photos:[]):[]))];let n=0;
+  for(const id of ids){const d=await idbGet(id);if(d){try{await photoRemote.put(id,d);n++}catch(e){}}}
+  if(n)syncMsg("写真"+n+"枚をスプレッドシートに送りました");
+}
 $("syncPwShow").onchange=()=>{$("syncPw").type=$("syncPwShow").checked?"text":"password"};
 $("syncBtn").onclick=()=>{$("syncUrl").value=syncUrl;$("syncPw").value=syncPw;$("syncState").textContent=syncUrl?lastSync:"まだ同期していません";$("syncOff").hidden=!syncUrl;$("dlgSync").showModal()};
 $("syncClose").onclick=()=>$("dlgSync").close();
@@ -666,7 +988,7 @@ $("syncOff").onclick=()=>{syncUrl="";syncPw="";try{localStorage.removeItem(SK);l
 $("fs").addEventListener("submit",async e=>{e.preventDefault();
   const u=$("syncUrl").value.trim();if(!/^https:\/\/script\.google\.com\/macros\/s\/[\w-]+\/exec$/.test(u)){$("syncState").textContent="URLの形が違います。「https://script.google.com/macros/s/…/exec」の形のURLを貼り付けてください";return}
   const p=$("syncPw").value;if(!p){$("syncState").textContent="合言葉を入れてください";return}
-  syncUrl=u;syncPw=p;try{localStorage.setItem(SK,u);localStorage.setItem(SK+".pw",p)}catch(e){}$("syncBtn").classList.add("on");$("dlgSync").close();await pull(false)});
+  syncUrl=u;syncPw=p;try{localStorage.setItem(SK,u);localStorage.setItem(SK+".pw",p)}catch(e){}$("syncBtn").classList.add("on");$("dlgSync").close();await pull(false);pushAllPhotos()});
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")pull(true)});
 
 /* 起動 */
@@ -681,6 +1003,8 @@ renderTabs();render();
     S[k]=snap.docs.map(d=>({id:d.id,...d.data()}));render();
   },err=>{clearTimeout(timer);$("syncNote").textContent="データを読み込めませんでした（"+err.code+"）"})};
   BUILTIN.forEach(watch);
+  db.doc("data/tackle/settings/owners").onSnapshot(d=>{const l=d.exists&&Array.isArray(d.data().list)&&d.data().list.length?d.data().list:["本人","家族"];OWNERS=l.slice();render()},err=>{});
+  db.doc("data/tackle/settings/purposes").onSnapshot(d=>{const l=d.exists&&Array.isArray(d.data().list)?d.data().list:DEF_PUR;PUR=l.slice();render()},err=>{});
   col("cats").onSnapshot(snap=>{applyCats(snap.docs.map(d=>({id:d.id,key:"c_"+d.id,...d.data()})));CATS.forEach(c=>watch(c.key));render()},err=>{});
 })();
 }
